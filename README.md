@@ -5,3 +5,4 @@ Authors
 * Jean-Milan Albarede
 * Mehmet Mercan
 * Hemant Garg
+* Ian Kozloski
