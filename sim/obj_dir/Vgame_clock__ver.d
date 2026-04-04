@@ -1,0 +1,1 @@
+obj_dir/Vgame_clock.cpp obj_dir/Vgame_clock.h obj_dir/Vgame_clock.mk obj_dir/Vgame_clock__Syms.cpp obj_dir/Vgame_clock__Syms.h obj_dir/Vgame_clock__ver.d obj_dir/Vgame_clock_classes.mk  : /usr/bin/verilator_bin ../sv/src/game_clock.sv /usr/bin/verilator_bin 

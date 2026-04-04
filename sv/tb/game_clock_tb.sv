@@ -101,7 +101,7 @@ module game_clock_tb;
             int n;
             logic [TIMER_WIDTH-1:0] rv;
             for (n = 0; n < RANDOM_LOAD_ITERATIONS; n++) begin
-                rv = TIMER_WIDTH'($urandom_range(0, MAX_TENTHS));
+                rv = TIMER_WIDTH'($urandom_range(0, int'(MAX_TENTHS)));
                 load_timer(rv);
                 check_eq($sformatf("random load iter %0d", n), current_time_value, rv);
             end
@@ -124,7 +124,7 @@ module game_clock_tb;
         pulse_tick_10hz();
         check_eq("dec 1->0", current_time_value, TIMER_WIDTH'(0));
 
-        // --- Expired: high for exactly one cycle after hitting 0 ---
+        // --- Expired: high for exactly one cycle (same cycle as 1->0; cleared next edge) ---
         load_timer(TIMER_WIDTH'(1));
         enable = 1'b1;
         @(posedge clk);
@@ -133,14 +133,14 @@ module game_clock_tb;
             err_count++;
         end
         pulse_tick_10hz();
-        @(posedge clk);
         if (expired !== 1'b1) begin
-            $error("FAIL expired not high cycle after 0");
+            $error("FAIL expired not high after terminal tick");
             err_count++;
         end
+        check_eq("time 0 after terminal", current_time_value, TIMER_WIDTH'(0));
         @(posedge clk);
         if (expired !== 1'b0) begin
-            $error("FAIL expired not one cycle");
+            $error("FAIL expired not cleared next cycle");
             err_count++;
         end
 
@@ -153,11 +153,14 @@ module game_clock_tb;
         check_eq("reload after 0", current_time_value, TIMER_WIDTH'(2));
         pulse_tick_10hz();
         pulse_tick_10hz();
-        @(posedge clk);
-        check_eq("countdown to 0", current_time_value, '0);
-        @(posedge clk);
         if (expired !== 1'b1) begin
             $error("FAIL expired after reload countdown");
+            err_count++;
+        end
+        check_eq("countdown to 0", current_time_value, '0);
+        @(posedge clk);
+        if (expired !== 1'b0) begin
+            $error("FAIL expired should clear next cycle after reload path");
             err_count++;
         end
         load_timer(TIMER_WIDTH'(FULL_PERIOD_TENTHS));
