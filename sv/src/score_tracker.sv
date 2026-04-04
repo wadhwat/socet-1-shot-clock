@@ -10,6 +10,7 @@ module score_tracker(
 
     always_ff @(posedge clk or negedge nrst) begin
         if (!nrst) begin
+            possession_state <= 1;
             home_score <= 8'd0;
             away_score <= 8'd0;
         end
