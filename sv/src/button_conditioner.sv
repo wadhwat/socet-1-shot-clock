@@ -1,52 +1,35 @@
 module button_conditioner #(
-    parameter integer N_BUTTONS = 7,
-    parameter integer STREAK_REQUIRED = 6  // Total consecutive 1 kHz highs required (initial high + 5 more)
+    parameter integer STREAK_REQUIRED = 5  // Number of consecutive highs needed
 )(
     input  wire clk,
     input  logic nrst,
     input  logic tick_1kHz,               // Clean 1 kHz sample tick from tick_generator
-    input  logic [N_BUTTONS-1:0] raw_buttons,
-    output logic [N_BUTTONS-1:0] conditioned_buttons
+    input  logic raw_button_signal,
+    output logic conditioned_button_signal
 );
 
-reg [3:0] streak_count [N_BUTTONS-1:0];
-reg       pressed_seen [N_BUTTONS-1:0]; // Blocks repeat until release
-
-integer i;
+localparam integer STREAK_WIDTH = (STREAK_REQUIRED > 0) ? $clog2(STREAK_REQUIRED + 1) : 1;
+reg [STREAK_WIDTH-1:0] high_streak_count; // Tracks consecutive highs
 
 always @(posedge clk or negedge nrst) begin
     if (!nrst) begin
-        for (i = 0; i < N_BUTTONS; i = i + 1) begin
-            streak_count[i] <= '0;
-            pressed_seen[i] <= 1'b0;
-            conditioned_buttons[i] <= 1'b0;
-        end
+        high_streak_count <= '0;
+        conditioned_button_signal <= 1'b0;
     end else if (tick_1kHz) begin
-        for (i = 0; i < N_BUTTONS; i = i + 1) begin
-            // Default to no pulse this tick; set high only when firing a one-shot
-            conditioned_buttons[i] <= 1'b0;
-
-            // Compute next streak with saturation at STREAK_REQUIRED to avoid overflow
-            if (raw_buttons[i]) begin
-                if (streak_count[i] < STREAK_REQUIRED[3:0]) begin
-                    streak_count[i] <= streak_count[i] + 1'b1;
-                end
-
-                // Fire a one-cycle pulse once per press when streak is met
-                if ((streak_count[i] + 1'b1 >= STREAK_REQUIRED[3:0]) && !pressed_seen[i]) begin
-                    conditioned_buttons[i] <= 1'b1;
-                    pressed_seen[i]        <= 1'b1;
-                end
-            end else begin
-                streak_count[i] <= '0;
-                pressed_seen[i]  <= 1'b0;
-                conditioned_buttons[i] <= 1'b0;
+        // Compute next streak with saturation at STREAK_REQUIRED to avoid overflow
+        if (raw_button_signal) begin
+            if (high_streak_count < STREAK_REQUIRED[STREAK_WIDTH-1:0]) begin
+                high_streak_count <= high_streak_count + 1'b1;
             end
+        end else begin
+            high_streak_count <= '0;
         end
-    end else begin
-        // No sampling this cycle; keep outputs low so pulses are single-cycle on clk domain
-        for (i = 0; i < N_BUTTONS; i = i + 1) begin
-            conditioned_buttons[i] <= 1'b0;
+
+        // Output goes high once we have the required run of highs; drops as soon as the button reads low
+        if (raw_button_signal && (high_streak_count + 1'b1 >= STREAK_REQUIRED[STREAK_WIDTH-1:0])) begin
+            conditioned_button_signal <= 1'b1;
+        end else if (!raw_button_signal) begin
+            conditioned_button_signal <= 1'b0;
         end
     end
 end
