@@ -35,7 +35,7 @@ always @(posedge clk or negedge nrst) begin
                 // Fire a one-cycle pulse once per press when streak is met
                 if ((streak_count[i] + 1'b1 >= STREAK_REQUIRED[3:0]) && !pressed_seen[i]) begin
                     conditioned_buttons[i] <= 1'b1;
-                    pressed_seen[i]       <= 1'b1;
+                    pressed_seen[i]        <= 1'b1;
                 end
             end else begin
                 streak_count[i] <= '0;

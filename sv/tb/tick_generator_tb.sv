@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1ns/1ps    
 module tb_tick_generator;
   localparam int CLK_FREQ_HZ = 100_000_000;
   localparam int TICK_FREQ_HZ = 1;
