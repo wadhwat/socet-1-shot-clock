@@ -1,0 +1,12 @@
+# DESCRIPTION: Verilator output: Timestamp data for --skip-identical.  Delete at will.
+C "--cc --exe -Mdir obj_dir -Wall -Wno-fatal tb_game_clock.cpp ../sv/src/game_clock.sv --top-module game_clock"
+S      1464 2695269185  1775330655   330576730  1775330655   330576730 "../sv/src/game_clock.sv"
+S   9492064 106978511  1748524088    59307696  1581880860           0 "/usr/bin/verilator_bin"
+T      7653 2155861522  1775330985   448330765  1775330985   448330765 "obj_dir/Vgame_clock.cpp"
+T      2777 2155861521  1775330985   448330765  1775330985   448330765 "obj_dir/Vgame_clock.h"
+T      1804 2155861524  1775330985   449330772  1775330985   449330772 "obj_dir/Vgame_clock.mk"
+T       564 2155861519  1775330985   448330765  1775330985   448330765 "obj_dir/Vgame_clock__Syms.cpp"
+T       816 2155861520  1775330985   448330765  1775330985   448330765 "obj_dir/Vgame_clock__Syms.h"
+T       259 2155861525  1775330985   449330772  1775330985   449330772 "obj_dir/Vgame_clock__ver.d"
+T         0        0  1775330985   449330772  1775330985   449330772 "obj_dir/Vgame_clock__verFiles.dat"
+T      1256 2155861523  1775330985   448330765  1775330985   448330765 "obj_dir/Vgame_clock_classes.mk"
