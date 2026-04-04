@@ -1,0 +1,24 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "9e3a8500-623e-4e85-b160-bd5f6b4c2438")
+	(paper "A4")
+	(lib_symbols)
+	(text "TESTING DELETE AFTER NOTICE\n"
+		(exclude_from_sim no)
+		(at 128.016 91.948 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "f09f1804-a65d-4e5d-a9dd-dc4dc4381889")
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)
