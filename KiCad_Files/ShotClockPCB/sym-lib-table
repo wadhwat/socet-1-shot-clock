@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "HT16K33A-28SSOP")(type "KiCad")(uri "${KIPRJMOD}/ProjSchSymbLib/HT16K33A-28SSOP.kicad_sym")(options "")(descr ""))
+)
