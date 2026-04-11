@@ -19,12 +19,12 @@ module button_conditioner_tb;
 	wire unused_tick_slow;
 	tick_generator #(
 		.CLK_FREQ_HZ(100_000_000),
-		.TICK_FREQ_HZ(1),
+		.TICK_FREQ_HZ(10),
 		.CONDITIONED(1_000)
 	) tick_gen (
 		.clk(clk),
 		.rst_n(nrst),
-		.tick(unused_tick_slow),
+		.tick_10Hz(unused_tick_slow),
 		.tick_1kHz(tick_1kHz)
 	);
 
