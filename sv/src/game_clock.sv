@@ -15,11 +15,14 @@ module game_clock #(
     input  wire                        game_clock_load,
     input  wire [TIMER_WIDTH-1:0]      game_clock_load_value,
     output logic [TIMER_WIDTH-1:0]     current_time_value,
-    output logic                       expired
+    output logic                       expired,
+    output logic                       below_10
 );
 
     localparam integer FULL_PERIOD_TENTHS =
         PERIOD_MINUTES * SECONDS_PER_MINUTE * TENTHS_PER_SECOND;
+    // High when remaining time is strictly under 10.0 s (100 tenths).
+    localparam integer BELOW_10S_TENTHS = 10 * TENTHS_PER_SECOND;
 
     logic [TIMER_WIDTH-1:0] time_left_tenths;
 
@@ -38,5 +41,6 @@ module game_clock #(
     end
 
     assign current_time_value = time_left_tenths;
+    assign below_10 = (time_left_tenths < TIMER_WIDTH'(BELOW_10S_TENTHS));
 
 endmodule

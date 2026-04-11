@@ -13,6 +13,7 @@ module game_clock_tb;
     localparam int TENTHS_PER_SECOND = 10;
     localparam int FULL_PERIOD_TENTHS =
         PERIOD_MINUTES * SECONDS_PER_MINUTE * TENTHS_PER_SECOND;
+    localparam int TEN_SEC_TENTHS = 10 * TENTHS_PER_SECOND;
     localparam logic [TIMER_WIDTH-1:0] MAX_TENTHS = {TIMER_WIDTH{1'b1}};
 
     localparam int RANDOM_LOAD_ITERATIONS = 256;
@@ -26,6 +27,7 @@ module game_clock_tb;
     logic [TIMER_WIDTH-1:0] game_clock_load_value;
     logic [TIMER_WIDTH-1:0] current_time_value;
     logic expired;
+    logic below_10;
 
     int err_count;
 
@@ -42,7 +44,8 @@ module game_clock_tb;
         .game_clock_load(game_clock_load),
         .game_clock_load_value(game_clock_load_value),
         .current_time_value(current_time_value),
-        .expired(expired)
+        .expired(expired),
+        .below_10(below_10)
     );
 
     // 100 MHz
@@ -96,6 +99,15 @@ module game_clock_tb;
         end
     endfunction
 
+    function automatic logic exp_below_10(input logic [TIMER_WIDTH-1:0] tenths);
+        return tenths < TIMER_WIDTH'(TEN_SEC_TENTHS);
+    endfunction
+
+    task automatic check_time_outputs(input string what, input logic [TIMER_WIDTH-1:0] exp_time);
+        check_eq(what, current_time_value, exp_time);
+        check_bit({what, " below_10"}, below_10, exp_below_10(exp_time));
+    endtask
+
     initial begin
         clk = 1'b0;
         err_count = 0;
@@ -103,21 +115,27 @@ module game_clock_tb;
 
         // --- Reset ---
         apply_reset();
-        check_eq("after reset: time",    current_time_value, '0);
+        check_time_outputs("after reset: time", '0);
         check_bit("after reset: expired", expired, 1'b0);
 
         // --- Load and readback (full period) ---
         // The timer stores tenths directly; 12 min * 60 s/min * 10 tenths/s = 7200 tenths.
         load_timer(TIMER_WIDTH'(FULL_PERIOD_TENTHS));
-        check_eq("load full period",           current_time_value, TIMER_WIDTH'(FULL_PERIOD_TENTHS));
+        check_time_outputs("load full period", TIMER_WIDTH'(FULL_PERIOD_TENTHS));
         check_bit("expired clear after load",  expired, 1'b0);
 
         // --- Load zero with enable: expired asserts same cycle as load completes ---
         enable = 1'b1;
         load_timer(TIMER_WIDTH'(0));
-        check_eq("load zero",                         current_time_value, TIMER_WIDTH'(0));
+        check_time_outputs("load zero", TIMER_WIDTH'(0));
         check_bit("expired high after load 0 enable", expired, 1'b1);
         enable = 1'b0;
+
+        // --- below_10 threshold at load: 99 -> high, 100 -> low ---
+        load_timer(TIMER_WIDTH'(99));
+        check_time_outputs("load 99 tenths (9.9 s)", TIMER_WIDTH'(99));
+        load_timer(TIMER_WIDTH'(100));
+        check_time_outputs("load 100 tenths (10.0 s)", TIMER_WIDTH'(100));
 
         // --- Random loads: full unsigned range for TIMER_WIDTH ---
         begin
@@ -126,7 +144,7 @@ module game_clock_tb;
             for (n = 0; n < RANDOM_LOAD_ITERATIONS; n++) begin
                 rv = TIMER_WIDTH'($urandom_range(0, int'(MAX_TENTHS)));
                 load_timer(rv);
-                check_eq($sformatf("random load iter %0d", n), current_time_value, rv);
+                check_time_outputs($sformatf("random load iter %0d", n), rv);
             end
         end
 
@@ -134,29 +152,29 @@ module game_clock_tb;
         load_timer(TIMER_WIDTH'(20));
         enable = 1'b1;
         repeat (5) pulse_tick_10hz();
-        check_eq("mid-run value before load", current_time_value, TIMER_WIDTH'(15));
+        check_time_outputs("mid-run value before load", TIMER_WIDTH'(15));
         load_timer(TIMER_WIDTH'(50));
-        check_eq("load mid-run overrides count",       current_time_value, TIMER_WIDTH'(50));
+        check_time_outputs("load mid-run overrides count", TIMER_WIDTH'(50));
         check_bit("expired clear after mid-run load",  expired, 1'b0);
 
         // --- No count when disabled ---
         load_timer(TIMER_WIDTH'(10));
         enable = 1'b0;
         repeat (3) pulse_tick_10hz();
-        check_eq("hold with enable=0",        current_time_value, TIMER_WIDTH'(10));
+        check_time_outputs("hold with enable=0", TIMER_WIDTH'(10));
         check_bit("expired 0 with enable=0",  expired, 1'b0);
 
         // --- Decrement with expired=0 verified at each step ---
         load_timer(TIMER_WIDTH'(3));
         enable = 1'b1;
         pulse_tick_10hz();
-        check_eq("dec 3->2",        current_time_value, TIMER_WIDTH'(2));
+        check_time_outputs("dec 3->2", TIMER_WIDTH'(2));
         check_bit("expired 0 at 2", expired, 1'b0);
         pulse_tick_10hz();
-        check_eq("dec 2->1",        current_time_value, TIMER_WIDTH'(1));
+        check_time_outputs("dec 2->1", TIMER_WIDTH'(1));
         check_bit("expired 0 at 1", expired, 1'b0);
         pulse_tick_10hz();
-        check_eq("dec 1->0",        current_time_value, TIMER_WIDTH'(0));
+        check_time_outputs("dec 1->0", TIMER_WIDTH'(0));
 
         // --- Expired: high for exactly one cycle when 1->0 ---
         load_timer(TIMER_WIDTH'(1));
@@ -165,7 +183,7 @@ module game_clock_tb;
         check_bit("expired 0 before terminal tick",  expired, 1'b0);
         pulse_tick_10hz();
         check_bit("expired 1 after terminal tick",   expired, 1'b1);
-        check_eq("time 0 after terminal",            current_time_value, TIMER_WIDTH'(0));
+        check_time_outputs("time 0 after terminal", TIMER_WIDTH'(0));
         @(posedge clk);
         check_bit("expired cleared next cycle",      expired, 1'b0);
 
@@ -173,7 +191,7 @@ module game_clock_tb;
         load_timer(TIMER_WIDTH'(1));
         enable = 1'b0;
         pulse_tick_10hz();
-        check_eq("no dec at 1 with enable=0",           current_time_value, TIMER_WIDTH'(1));
+        check_time_outputs("no dec at 1 with enable=0", TIMER_WIDTH'(1));
         check_bit("no expired at terminal with enable=0", expired, 1'b0);
         enable = 1'b1;
 
@@ -184,17 +202,17 @@ module game_clock_tb;
         @(posedge clk);      // expired clears
         repeat (4) begin
             pulse_tick_10hz();
-            check_eq("saturate at 0",            current_time_value, '0);
+            check_time_outputs("saturate at 0", '0);
             check_bit("expired 0 during saturation", expired, 1'b0);
         end
 
         // --- Reload after expiry and countdown to 0 again ---
         load_timer(TIMER_WIDTH'(2));
-        check_eq("reload after 0", current_time_value, TIMER_WIDTH'(2));
+        check_time_outputs("reload after 0", TIMER_WIDTH'(2));
         pulse_tick_10hz();
         pulse_tick_10hz();
         check_bit("expired after reload countdown", expired, 1'b1);
-        check_eq("countdown to 0", current_time_value, '0);
+        check_time_outputs("countdown to 0", '0);
         @(posedge clk);
         check_bit("expired clears next cycle after reload path", expired, 1'b0);
 
@@ -206,11 +224,12 @@ module game_clock_tb;
         pulse_tick_10hz();
         check_bit("expired high before full-period load", expired, 1'b1);
         load_timer(TIMER_WIDTH'(FULL_PERIOD_TENTHS));
-        check_eq("full period load value",          current_time_value, TIMER_WIDTH'(FULL_PERIOD_TENTHS));
+        check_time_outputs("full period load value", TIMER_WIDTH'(FULL_PERIOD_TENTHS));
         check_bit("expired 0 after full-period load", expired, 1'b0);
 
         if (err_count == 0)
-            $display("PASS game_clock_tb (%0d checks)", RANDOM_LOAD_ITERATIONS + 34);
+            // 2 checks per check_time_outputs; 20 non-random time checks; +19 standalone check_bit
+            $display("PASS game_clock_tb (%0d checks)", RANDOM_LOAD_ITERATIONS * 2 + 59);
         else
             $display("FAIL game_clock_tb errors=%0d", err_count);
         $finish;
