@@ -7,7 +7,7 @@ module tb_tick_generator;
   reg clk = 0;
   reg rst_n = 0;
   wire tick;
-  wire conditioned_tick;
+  wire tick_1kHz;
 
   // 100 MHz clock => 10 ns period
   always #5 clk = ~clk;
@@ -20,7 +20,7 @@ module tb_tick_generator;
     .clk(clk),
     .rst_n(rst_n),
     .tick(tick),
-    .conditioned_tick(conditioned_tick)
+    .tick_1kHz(tick_1kHz)
   );
 
   initial begin
