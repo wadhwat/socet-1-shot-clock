@@ -29,7 +29,7 @@ module game_clock #(
             expired <= 1'b0;
         end else if (game_clock_load) begin
             time_left_tenths <= game_clock_load_value;
-            expired <= 1'b0;
+            expired <= enable && (game_clock_load_value == '0);
         end else begin
             expired <= (enable && tick_10hz && (time_left_tenths == 1));
             if (enable && tick_10hz && (time_left_tenths != 0))
