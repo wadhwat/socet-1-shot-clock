@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "HT16K33A-28SSOP (1)")(type "KiCad")(uri "${KIPRJMOD}/ProjFootprintLib/HT16K33A-28SSOP (1)")(options "")(descr ""))
+)

@@ -1,13 +1,13 @@
-`timescale 1ns/1ps
+`timescale 1ns/1ps    
 module tb_tick_generator;
   localparam int CLK_FREQ_HZ = 100_000_000;
-  localparam int TICK_FREQ_HZ = 1;
+  localparam int TICK_FREQ_HZ = 10;
   localparam int CONDITIONED  = 1_000;
 
   reg clk = 0;
   reg rst_n = 0;
-  wire tick;
-  wire conditioned_tick;
+  wire tick_10Hz;
+  wire tick_1kHz;
 
   // 100 MHz clock => 10 ns period
   always #5 clk = ~clk;
@@ -19,8 +19,8 @@ module tb_tick_generator;
   ) dut (
     .clk(clk),
     .rst_n(rst_n),
-    .tick(tick),
-    .conditioned_tick(conditioned_tick)
+    .tick_10Hz(tick_10Hz),
+    .tick_1kHz(tick_1kHz)
   );
 
   initial begin
