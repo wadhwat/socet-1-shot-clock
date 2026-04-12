@@ -2,11 +2,14 @@ module brightness_test #(
     parameter int DEBOUNCE_CYCLES = 2_000_000
 ) (
     input  logic clk_100mhz,
-    input  logic rst_n,
+    input  logic btn_rst_raw,
     input  logic btn_cycle,
     output logic [3:0] disp_sel,
     output logic [7:0] seg
 );
+
+    logic rst_n;
+    assign rst_n = ~btn_rst_raw;
 
     // ============================================================
     // Frequency choices: full 12-slot frame refresh frequency

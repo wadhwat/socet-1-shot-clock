@@ -3,7 +3,7 @@
 module brightness_test_tb;
 
     logic clk_100mhz;
-    logic rst_n;
+    logic btn_rst_raw;
     logic btn_cycle;
 
     logic [3:0] disp_sel;
@@ -15,7 +15,7 @@ module brightness_test_tb;
         .DEBOUNCE_CYCLES(TB_DEBOUNCE_CYCLES)
     ) dut (
         .clk_100mhz(clk_100mhz),
-        .rst_n      (rst_n),
+        .btn_rst_raw(btn_rst_raw),
         .btn_cycle  (btn_cycle),
         .disp_sel   (disp_sel),
         .seg        (seg)
@@ -147,7 +147,7 @@ module brightness_test_tb;
     endtask
 
     initial begin
-        rst_n     = 1'b0;
+        btn_rst_raw = 1'b1;
         btn_cycle = 1'b0;
 
         $display("============================================================");
@@ -156,7 +156,7 @@ module brightness_test_tb;
         $display("============================================================");
 
         #100;
-        rst_n = 1'b1;
+        btn_rst_raw = 1'b0;
         $display("[%0t ns] TEST: released reset", $time);
 
         #200;
