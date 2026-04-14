@@ -1,2 +1,22 @@
 socet-1-shot-clock\KiCad_Files\ShotClockPCB\.history\
 socet-1-shot-clock\KiCad_Files\ShotClockPCB\17pinPCB\.history\
+.vvp
+.vcd
+.vcd.gz
+*.fst
+*.vpd
+*.vcd.*
+
+# GTKWave save files
+*.sav
+*.gtkw
+
+# Simulation logs and temporary outputs
+*.log
+*.wlf
+*.vdb
+sim_out/
+
+# Editor/temp files
+*~
+.DS_Store
