@@ -84,11 +84,11 @@ module brightness_test #(
 
     always_comb begin
         unique case (freq_sel)
-            3'd0: frame_hz = FRAME_HZ_0;
-            3'd1: frame_hz = FRAME_HZ_1;
-            3'd2: frame_hz = FRAME_HZ_2;
-            3'd3: frame_hz = FRAME_HZ_3;
-            3'd4: frame_hz = FRAME_HZ_4;
+            3'd0: frame_hz = FRAME_HZ_0; // 30 Hz
+            3'd1: frame_hz = FRAME_HZ_1; // 60 Hz
+            3'd2: frame_hz = FRAME_HZ_2; // 120 Hz
+            3'd3: frame_hz = FRAME_HZ_3; // 240 Hz
+            3'd4: frame_hz = FRAME_HZ_4; // 480 Hz
             default: frame_hz = FRAME_HZ_0;
         endcase
     end
