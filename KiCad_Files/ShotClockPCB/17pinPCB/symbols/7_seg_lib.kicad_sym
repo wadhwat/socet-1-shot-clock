@@ -8,8 +8,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(duplicate_pin_numbers_are_jumpers no)
-		(property "Reference" "DS"
-			(at 0 -2.794 0)
+		(property "Reference" "DS1"
+			(at 0 2.54 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -28,7 +28,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "ShotClockPCB:TDG1050M"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
