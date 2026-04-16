@@ -20,3 +20,6 @@ sim_out/
 # Editor/temp files
 *~
 .DS_Store
+
+
+.cursor
