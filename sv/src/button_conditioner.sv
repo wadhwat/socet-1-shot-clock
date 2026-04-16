@@ -1,5 +1,5 @@
 module button_conditioner #(
-    parameter integer N_BUTTONS = 7,
+    parameter integer N_BUTTONS = 6,
     parameter integer STREAK_REQUIRED = 6  // Total consecutive 1 kHz highs required (initial high + 5 more)
 )(
     input  wire clk,
