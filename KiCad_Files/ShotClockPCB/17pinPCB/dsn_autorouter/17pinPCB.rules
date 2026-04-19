@@ -1,0 +1,121 @@
+
+(rules PCB 17pinPCB.dsn
+  (snap_angle 
+    fortyfive_degree
+  )
+  (autoroute_settings
+    (fanout off)
+    (autoroute on)
+    (postroute off)
+    (vias on)
+    (via_costs 50)
+    (plane_via_costs 5)
+    (start_ripup_costs 100)
+    (start_pass_no 1)
+    (layer_rule F.Cu
+      (active on)
+      (preferred_direction vertical)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 3.5)
+    )
+    (layer_rule B.Cu
+      (active on)
+      (preferred_direction horizontal)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 3.5)
+    )
+  )
+  (rule
+    (width 300.0)
+    (clearance 200.0)
+    (clearance 150.0 (type smd_to_turn_gap))
+    (clearance 50.0 (type smd))
+    (clearance 200.0 (type "kicad_default"))
+    (clearance 200.0 (type Power,Default))
+  )
+  (padstack "Via[0-1]_600:300_um"
+    (shape
+      (circle F.Cu 600.0 0.0 0.0)
+    )
+    (shape
+      (circle B.Cu 600.0 0.0 0.0)
+    )
+    (attach off)
+  )
+  (padstack "Via[0-1]_700:300_um"
+    (shape
+      (circle F.Cu 700.0 0.0 0.0)
+    )
+    (shape
+      (circle B.Cu 700.0 0.0 0.0)
+    )
+    (attach off)
+  )
+  (via 
+    "Via[0-1]_600:300_um" "Via[0-1]_600:300_um" default
+  )
+  (via 
+    "Via[0-1]_700:300_um" "Via[0-1]_700:300_um" default
+  )
+  (via 
+    "Via[0-1]_600:300_um-kicad_default" "Via[0-1]_600:300_um" "kicad_default"
+  )
+  (via 
+    "Via[0-1]_700:300_um-kicad_default" "Via[0-1]_700:300_um" "kicad_default"
+  )
+  (via 
+    "Via[0-1]_600:300_um-Power,Default" "Via[0-1]_600:300_um" Power,Default
+  )
+  (via 
+    "Via[0-1]_700:300_um-Power,Default" "Via[0-1]_700:300_um" Power,Default
+  )
+  (via_rule
+    default "Via[0-1]_600:300_um"
+  )
+  (via_rule
+    "kicad_default" "Via[0-1]_600:300_um-kicad_default"
+  )
+  (via_rule
+    Power,Default "Via[0-1]_600:300_um-Power,Default"
+  )
+  (class default
+    (clearance_class default)
+    (via_rule default)
+    (rule
+      (width 300.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class "kicad_default"
+    "/BTN_2" "/BTN_1" "/DIG_1" "/DIG_1_IN" "/DIG_2" "/DIG_2_IN" "/DIG_3" "/DIG_3_IN"
+    "/DIG_4_IN" "/DIG_4" "/DIG_5_IN" "/DIG_5" "/DIG_6_IN" "/DIG_6" "/BTN_6" "/SEG_A"
+    "/SEG_B" "/SEG_C" "/SEG_D" "/SEG_E" "/SEG_F" "/SEL_A2" "/SEG_DP" "/SEL_A0"
+    /Buzzer "/SEG_G" /Colon "/LED_POS_HOME" "/LED_POS_AWAY" "/BTN_3" "/BTN_4" "/BTN_5"
+    "Net-(D6-A)" "unconnected-(J2-Pin_1-Pad1)" "unconnected-(J2-Pin_2-Pad2)" "unconnected-(J2-Pin_5-Pad5)" "unconnected-(J2-Pin_6-Pad6)" "unconnected-(J2-Pin_7-Pad7)" "unconnected-(J2-Pin_8-Pad8)" "Net-(D5-A)"
+    "Net-(BZ1--)" "Net-(Q1-B)" "/DIG_9_IN" "/DIG_10_IN" "/DIG_11_IN" "/DIG_12_IN" "Net-(D4-A)" "/LED_P4"
+    "Net-(D3-A)" "/DIG_7_IN" "/DIG_8_IN" "/DIG_7" "/DIG_8" "/DIG_9" "/DIG_10" "/DIG_11"
+    "/DIG_12" "unconnected-(U1-S12-Pad14)" "unconnected-(U1-S13-Pad15)" "unconnected-(U1-S14-Pad16)" "unconnected-(U1-S15-Pad17)" "Net-(D2-A)" "Net-(D1-A)" "/LED_P3"
+    "/LED_P1" "/LED_P2" "/SEL_A1" "/SEL_A3" "unconnected-(J3-Pin_12-Pad12)" "unconnected-(J3-Pin_11-Pad11)"
+    (clearance_class "kicad_default")
+    (via_rule "kicad_default")
+    (rule
+      (width 300.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class Power,Default
+    GND +5V
+    (clearance_class Power,Default)
+    (via_rule Power,Default)
+    (rule
+      (width 500.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+)
