@@ -18,6 +18,8 @@ module top (
     output logic display_enable
 );
 
+    logic tick_10Hz, tick_1kHz, tick_2640Hz;
+
     main_driver m1 (
         .clk(clk),
         .tick_2640Hz(tick_2640Hz),
@@ -43,14 +45,14 @@ module top (
     tick_generator #(
         .CLK_FREQ_HZ(100_000_000), // 100 MHz clock
         .TICK_FREQ_HZ(10),         // 10 Hz tick for period changes
-        .TICK_12_HZ(12),          // 12 Hz tick for possession changes
+        .TICK_2640_HZ(2640),      // 2,640 Hz tick for shot clock
         .CONDITIONED(1_000)       // 1,000 Hz tick for score updates and shot clock
     ) tg (
         .clk(clk),
         .rst_n(n_rst),
         .tick_10Hz(tick_10Hz),
         .tick_1kHz(tick_1kHz),
-        .tick_12Hz(tick_12Hz)
+        .tick_2640Hz(tick_2640Hz)
     );
 
 endmodule
