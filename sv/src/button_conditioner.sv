@@ -2,7 +2,7 @@ module button_conditioner #(
     parameter integer N_BUTTONS = 6,
     parameter integer STREAK_REQUIRED = 6  // Total consecutive 1 kHz highs required (initial high + 5 more)
 )(
-    input  wire clk,
+    input  logic clk,
     input  logic nrst,
     input  logic tick_1kHz,               // Clean 1 kHz sample tick from tick_generator
     input  logic [N_BUTTONS-1:0] raw_buttons,
