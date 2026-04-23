@@ -24,14 +24,14 @@ module top (
         .clk(clk),
         .tick_2640Hz(tick_2640Hz),
         .n_rst(n_rst),
-        .quad_led(period_leds),
-        .pos_led(possession_leds),
+        .quad_led(),
+        .pos_led(),
         .gc_ss1(gc_ss1), .gc_ss2(gc_ss2), .gc_ss3(gc_ss3), .gc_ss4(gc_ss4),
         .scr_ss1(scr_ss1), .scr_ss2(scr_ss2), .scr_ss3(scr_ss3), .scr_ss4(scr_ss4),
         .scr_colon(scr_colon),
         .sc_ss1(sc_ss1), .sc_ss2(sc_ss2), .sc_ss3(sc_ss3), .sc_ss4(sc_ss4),
-        .sc_colon(sc_colon),
-        .buzzer_in(buzzer_drive),
+        .sc_colon(),
+        .buzzer_in(),
 
         .main_segments_pin_out(display_segments),
         .decoder_pin(display_select),
@@ -39,7 +39,7 @@ module top (
         .sc_colon_out(), 
         .scr_colon_out(), 
         .quad_led_out(), 
-        .pos_led_out()
+        .pos_led_out(possession_leds)
     );
 
     tick_generator #(
