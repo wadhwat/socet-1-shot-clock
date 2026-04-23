@@ -1,9 +1,9 @@
 module button_conditioner #(
-    parameter integer N_BUTTONS = 6,
+    parameter integer N_BUTTONS = 5,
     parameter integer STREAK_REQUIRED = 6  // Total consecutive 1 kHz highs required (initial high + 5 more)
 )(
     input  logic clk,
-    input  logic nrst,
+    input  logic n_rst,
     input  logic tick_1kHz,               // Clean 1 kHz sample tick from tick_generator
     input  logic [N_BUTTONS-1:0] raw_buttons,
     output logic [N_BUTTONS-1:0] conditioned_buttons
@@ -14,8 +14,8 @@ reg       pressed_seen [N_BUTTONS-1:0]; // Blocks repeat until release
 
 integer i;
 
-always @(posedge clk or negedge nrst) begin
-    if (!nrst) begin
+always @(posedge clk or negedge n_rst) begin
+    if (!n_rst) begin
         for (i = 0; i < N_BUTTONS; i = i + 1) begin
             streak_count[i] <= '0;
             pressed_seen[i] <= 1'b0;
