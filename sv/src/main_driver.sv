@@ -1,7 +1,7 @@
 module main_driver (
     input logic clk, tick_2640Hz, n_rst,
     input logic [3:0] quad_led, //MSB is quadrant 1
-    input logic pos_led, //Home is 1, Away is 0
+    input logic [1:0] pos_led, //Home is 1, Away is 0
     input logic [7:0] gc_ss1, gc_ss2, gc_ss3, gc_ss4,
     input logic [7:0] scr_ss1, scr_ss2, scr_ss3, scr_ss4,
     input logic scr_colon,
@@ -14,7 +14,7 @@ module main_driver (
     output logic gc_colon, //always set to 1
     output logic sc_colon_out, scr_colon_out,
     output logic [3:0] quad_led_out,
-    output logic pos_led_out,
+    output logic [1:0] pos_led_out,
     output logic buzzer_out
 );
 
