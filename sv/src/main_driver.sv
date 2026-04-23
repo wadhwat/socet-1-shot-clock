@@ -7,13 +7,15 @@ module main_driver (
     input logic scr_colon,
     input logic [7:0] sc_ss1, sc_ss2, sc_ss3, sc_ss4,
     input logic sc_colon,
+    input logic buzzer_in,
 
     output logic [7:0] main_segments_pin_out,
     output logic [3:0] decoder_pin, //controls the decoder to select correct ss
     output logic gc_colon, //always set to 1
     output logic sc_colon_out, scr_colon_out,
     output logic [3:0] quad_led_out,
-    output logic pos_led_out
+    output logic pos_led_out,
+    output logic buzzer_out
 );
 
     assign gc_colon = 1'b1; 
@@ -21,6 +23,7 @@ module main_driver (
     assign scr_colon_out = scr_colon; 
     assign quad_led_out = quad_led;
     assign pos_led_out = pos_led;
+    assign buzzer_out = buzzer_in;
     //MIGHT!! need to add assign to XOR the ss before they leave to make them work with Anode.
 
     //DECODER LOOP: 0 -> 10
