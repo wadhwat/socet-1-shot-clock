@@ -37,7 +37,7 @@ module top #(
 
     logic tick_10Hz, tick_1kHz, tick_2640Hz;
     logic btn_start_stop, btn_possession, btn_score_up, btn_score_down, btn_shot_reset;
-    logic [1:0] pos_led_wire;
+    logic home_led_wire, away_led_wire;
     logic [3:0] period_led_wire;
     logic [7:0] gc_ss1, gc_ss2, gc_ss3, gc_ss4;
     logic [7:0] sc_ss1, sc_ss2, sc_ss3, sc_ss4;
@@ -68,7 +68,8 @@ module top #(
         .tick_2640Hz(tick_2640Hz),
         .n_rst(n_rst),
         .period_led(period_led_wire),
-        .pos_led(pos_led_wire),
+        .home_led(pos_led_wire[0]),
+        .away_led(pos_led_wire[1]),
         .gc_ss1(gc_ss1), .gc_ss2(gc_ss2), .gc_ss3(gc_ss3), .gc_ss4(gc_ss4), //COMPLETE
         .gc_colon(gc_colon_wire),
         .scr_ss1(scr_ss1), .scr_ss2(scr_ss2), .scr_ss3(scr_ss3), .scr_ss4(scr_ss4),
@@ -83,7 +84,8 @@ module top #(
         .sc_colon_out(sc_colon_out), 
         .scr_colon_out(scr_colon_out),
         .period_led_out(period_leds), 
-        .pos_led_out(possession_leds),
+        .home_led(home_led_wire),
+        .away_led(away_led_wire),
         .buzzer_out(buzzer_drive)
     );
 
@@ -171,7 +173,8 @@ module top #(
         .n_rst(n_rst),
         .possession_toggle_pulse(possession_increment_wire),
         .possession_state(possession_state_wire), 
-        .possession_leds(pos_led_wire)
+        .home_led(home_led_wire),
+        .away_led(away_led_wire)
     );
 
     period_ctrl pc2 (
