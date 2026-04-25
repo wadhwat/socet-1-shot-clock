@@ -87,9 +87,9 @@ module top #(
         .buzzer_out(buzzer_drive)
     );
 
-    clock_driver gcd #(
+    clock_driver #(
         .TIMER_WIDTH(TIMER_WIDTH)
-    ) (
+    ) gcd (
         .raw_deciseconds(game_clock_time_wire),
         
         .seg3(gc_ss1), .seg2(gc_ss2), .seg1(gc_ss3), .seg0(gc_ss4), //COMPLETE to main driver
@@ -114,9 +114,9 @@ module top #(
     );
 
 
-    clock_driver scd #(
+    clock_driver #(
         .TIMER_WIDTH(TIMER_WIDTH)
-    ) (
+    ) scd (
         .raw_deciseconds(shot_clock_time_wire),
         
         .seg3(sc_ss1), .seg2(sc_ss2), .seg1(sc_ss3), .seg0(sc_ss4), //COMPLETE to main driver

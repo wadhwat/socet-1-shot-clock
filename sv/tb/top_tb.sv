@@ -117,7 +117,7 @@ module top_tb;
         force dut.tick_1kHz = 1'b1;
         @(posedge clk);
         #1;
-        release dut.tick_1kHz;
+        force dut.tick_1kHz = 1'b0;
         @(negedge clk);
         #1;
     endtask
@@ -127,7 +127,7 @@ module top_tb;
         force dut.tick_2640Hz = 1'b1;
         @(posedge clk);
         #1;
-        release dut.tick_2640Hz;
+        force dut.tick_2640Hz = 1'b0;
         @(negedge clk);
         #1;
     endtask
@@ -159,6 +159,8 @@ module top_tb;
         btn_score_up_raw = 1'b0;
         btn_score_down_raw = 1'b0;
         btn_shot_reset_raw = 1'b0;
+        force dut.tick_1kHz = 1'b0;
+        force dut.tick_2640Hz = 1'b0;
 
         repeat (5) @(posedge clk);
         rst_in = 1'b0;
