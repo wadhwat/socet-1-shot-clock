@@ -1,12 +1,10 @@
 // Game period countdown in tenths of a second; decrements on tick_10hz when enabled.
 
-`timescale 1ns/1ps
-
 module clock #(
     parameter integer PERIOD_MINUTES      = 12,
     parameter integer SECONDS_PER_MINUTE  = 60,
     parameter integer TENTHS_PER_SECOND   = 10,
-    parameter integer TIMER_WIDTH       = 14
+    parameter integer TIMER_WIDTH         = 14
 ) (
     input  wire                        clk,
     input  wire                        nrst,
@@ -15,7 +13,7 @@ module clock #(
     input  wire                        clock_load,
     input  wire [TIMER_WIDTH-1:0]      clock_load_value,
     output logic [TIMER_WIDTH-1:0]     current_time_value,
-    output logic                       expired,
+    output logic                       expired
 );
 
     localparam integer FULL_PERIOD_TENTHS =
