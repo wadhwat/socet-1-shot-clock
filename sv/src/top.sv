@@ -25,7 +25,6 @@ module top #(
     //SS Outputs
     output logic [3:0] display_select,
     output logic [7:0] display_segments,
-    output logic display_enable
 );
 
     logic n_rst;
@@ -82,6 +81,14 @@ module top #(
         .period_led_out(period_leds), 
         .pos_led_out(possession_leds),
         .buzzer_out(buzzer_drive)
+    );
+
+    clock_driver cd1 (
+        .raw_deciseconds(), //COMPLETE from clock module in tenths of seconds
+        
+        .seg3(gc_ss3), .seg2(gc_ss2), .seg1(gc_ss1), .seg0(gc_ss0), //COMPLETE to main driver
+        .colon(), //COMPLETE to main driver
+        .dp() //COMPLETE to main driver
     );
 
     //IDK how ts works

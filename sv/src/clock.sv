@@ -12,8 +12,8 @@ module clock #(
     input  wire                        nrst,
     input  wire                        tick_10hz,
     input  wire                        enable,
-    input  wire                        game_clock_load,
-    input  wire [TIMER_WIDTH-1:0]      game_clock_load_value,
+    input  wire                        clock_load,
+    input  wire [TIMER_WIDTH-1:0]      clock_load_value,
     output logic [TIMER_WIDTH-1:0]     current_time_value,
     output logic                       expired,
     output logic                       below_10
@@ -30,9 +30,9 @@ module clock #(
         if (!nrst) begin
             time_left_tenths <= TIMER_WIDTH'(FULL_PERIOD_TENTHS);
             expired <= 1'b0;
-        end else if (game_clock_load) begin
-            time_left_tenths <= game_clock_load_value;
-            expired <= enable && (game_clock_load_value == '0);
+        end else if (clock_load) begin
+            time_left_tenths <= clock_load_value;
+            expired <= enable && (clock_load_value == '0);
         end else begin
             expired <= (enable && tick_10hz && (time_left_tenths == 1));
             if (enable && tick_10hz && (time_left_tenths != 0))
