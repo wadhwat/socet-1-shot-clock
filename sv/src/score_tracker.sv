@@ -8,9 +8,9 @@ module score_tracker(
     output logic [7:0] away_score
 );
 
-    // Maximum score shown on the display; keep internal state saturated to
-    // avoid divergence between internal counters and the display clamping.
-    localparam logic [7:0] MAX_SCORE = 8'd99;
+    // Keep internal state at the full 8-bit range; score_driver indicates
+    // display overflow for values above 99.
+    localparam logic [7:0] MAX_SCORE = 8'd255;
 
     always_ff @(posedge clk or negedge nrst) begin
         if (!nrst) begin

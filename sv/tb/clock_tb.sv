@@ -229,9 +229,9 @@ module clock_tb;
 
         if (err_count == 0)
             // 2 checks per check_time_outputs; 20 non-random time checks; +19 standalone check_bit
-            $display("PASS game_clock_tb (%0d checks)", RANDOM_LOAD_ITERATIONS * 2 + 59);
+            $display("PASS clock_tb (%0d checks)", RANDOM_LOAD_ITERATIONS * 2 + 59);
         else
-            $display("FAIL game_clock_tb errors=%0d", err_count);
+            $display("FAIL clock_tb errors=%0d", err_count);
         $finish;
     end
 
