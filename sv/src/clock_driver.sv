@@ -1,8 +1,10 @@
 // Main Shot Clock Driver
-module clock_driver (
-    input  logic [15:0] raw_deciseconds, // Input value in deciseconds
-    output logic [7:0]  seg3, seg2,      // [g, f, e, d, c, b, a] for Digits 3 and 2
-    output logic [7:0]  seg1, seg0,      // [g, f, e, d, c, b, a] for Digits 1 and 0
+module clock_driver #(
+    parameter integer TIMER_WIDTH = 16
+)(
+    input  logic [TIMER_WIDTH-1:0] raw_deciseconds, // Input value in deciseconds
+    output logic [7:0]  seg3, seg2,      // [dp, g, f, e, d, c, b, a], active-low
+    output logic [7:0]  seg1, seg0,      // [dp, g, f, e, d, c, b, a], active-low
     output logic        colon            // Center colon signal
 );
 
@@ -28,10 +30,10 @@ module clock_driver (
             
             colon  = 1'b0;           // Colon OFF
             // DP1 ON (between Seconds and Tenths)
-            dp0 = 1'b0;
-            dp1 = 1'b1;
-            dp2 = 1'b0;
-            dp3 = 1'b0;
+            dp0 = 1'b1;
+            dp1 = 1'b0;
+            dp2 = 1'b1;
+            dp3 = 1'b1;
         end else begin
             // --- MODE: MM:SS (1 Minute and Over) ---
             d3_val = minutes / 10;   // Minutes Tens
@@ -42,10 +44,10 @@ module clock_driver (
             colon  = 1'b1;           // Colon ON
             
             // All Decimal Points OFF
-            dp0 = 1'b0;
-            dp1 = 1'b0;
-            dp2 = 1'b0;
-            dp3 = 1'b0;
+            dp0 = 1'b1;
+            dp1 = 1'b1;
+            dp2 = 1'b1;
+            dp3 = 1'b1;
         end
     end
 
@@ -65,7 +67,7 @@ endmodule
 
 
 // Helper Module: 7-Segment Decoder
-// Logic: 1 = Segment ON (Active High)
+// Logic: 0 = Segment ON (Active Low / Common Anode)
 // Bit Order: [6]=g, [5]=f, [4]=e, [3]=d, [2]=c, [1]=b, [0]=a
 module seven_seg_decoder (
     input  logic [3:0] bin,
@@ -73,18 +75,18 @@ module seven_seg_decoder (
 );
     always_comb begin
         case (bin)
-            4'h0: seg = 7'b0111111;
-            4'h1: seg = 7'b0000110;
-            4'h2: seg = 7'b1011011;
-            4'h3: seg = 7'b1001111;
-            4'h4: seg = 7'b1100110;
-            4'h5: seg = 7'b1101101;
-            4'h6: seg = 7'b1111101;
-            4'h7: seg = 7'b0000111;
-            4'h8: seg = 7'b1111111;
-            4'h9: seg = 7'b1101111;
-            4'hF: seg = 7'b0000000; // Blanking (All OFF)
-            default: seg = 7'b0000000;
+            4'h0: seg = 7'b1000000;
+            4'h1: seg = 7'b1111001;
+            4'h2: seg = 7'b0100100;
+            4'h3: seg = 7'b0110000;
+            4'h4: seg = 7'b0011001;
+            4'h5: seg = 7'b0010010;
+            4'h6: seg = 7'b0000010;
+            4'h7: seg = 7'b1111000;
+            4'h8: seg = 7'b0000000;
+            4'h9: seg = 7'b0010000;
+            4'hF: seg = 7'b1111111; // Blanking (All OFF)
+            default: seg = 7'b1111111;
         endcase
     end
 endmodule
