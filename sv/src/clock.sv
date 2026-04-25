@@ -28,7 +28,7 @@ module clock #(
 
     always_ff @(posedge clk or negedge nrst) begin
         if (!nrst) begin
-            time_left_tenths <= '0;
+            time_left_tenths <= TIMER_WIDTH'(FULL_PERIOD_TENTHS);
             expired <= 1'b0;
         end else if (clock_load) begin
             time_left_tenths <= clock_load_value;

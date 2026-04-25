@@ -13,6 +13,8 @@ module score_driver (
 	logic [3:0] home_ones;
 	logic [3:0] away_tens;
 	logic [3:0] away_ones;
+	logic home_score_overflow;
+	logic away_score_overflow;
 
 	function automatic logic [7:0] digit_to_sevenseg_anode(input logic [3:0] digit);
 		logic [7:0] cathode_code;
@@ -39,6 +41,9 @@ module score_driver (
 
 	always_comb begin
 		// Score display supports two decimal digits per team.
+		home_score_overflow = home_score > 8'd99;
+		away_score_overflow = away_score > 8'd99;
+
 		home_score_limited = (home_score > 8'd99) ? 8'd99 : home_score;
 		away_score_limited = (away_score > 8'd99) ? 8'd99 : away_score;
 
@@ -52,6 +57,11 @@ module score_driver (
 		scr_ss2 = digit_to_sevenseg_anode(away_ones);
 		scr_ss3 = digit_to_sevenseg_anode(home_tens);
 		scr_ss4 = digit_to_sevenseg_anode(home_ones);
+
+		if (away_score_overflow)
+			scr_ss2[7] = 1'b0;
+		if (home_score_overflow)
+			scr_ss4[7] = 1'b0;
 	end
 
 endmodule
