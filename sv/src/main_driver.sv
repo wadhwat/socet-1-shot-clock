@@ -1,7 +1,7 @@
 module main_driver (
     input logic clk, tick_2640Hz, n_rst,
-    input logic [3:0] quad_led, //MSB is quadrant 1
-    input logic [1:0] pos_led, //Home is 1, Away is 0
+    input logic [3:0] period_led, //MSB is quadrant 1
+    input logic [1:0] pos_led, //away is msb, home is lsb
     input logic [7:0] gc_ss1, gc_ss2, gc_ss3, gc_ss4,
     input logic [7:0] scr_ss1, scr_ss2, scr_ss3, scr_ss4,
     input logic scr_colon,
@@ -13,7 +13,7 @@ module main_driver (
     output logic [3:0] decoder_pin, //controls the decoder to select correct ss
     output logic gc_colon, //always set to 1
     output logic sc_colon_out, scr_colon_out,
-    output logic [3:0] quad_led_out,
+    output logic [3:0] period_led_out,
     output logic [1:0] pos_led_out,
     output logic buzzer_out
 );
@@ -21,7 +21,7 @@ module main_driver (
     assign gc_colon = 1'b1; 
     assign sc_colon_out = sc_colon; 
     assign scr_colon_out = scr_colon; 
-    assign quad_led_out = quad_led;
+    assign period_led_out = period_led;
     assign pos_led_out = pos_led;
     assign buzzer_out = buzzer_in;
     //MIGHT!! need to add assign to XOR the ss before they leave to make them work with Anode.
@@ -46,17 +46,17 @@ module main_driver (
             main_segments_pin_out = 8'b11111111;
         else begin
             case (decoder_pin)
-                4'd0: main_segments_pin_out = {1'b0, gc_ss1};
-                4'd1: main_segments_pin_out = {1'b0, gc_ss2};
-                4'd2: main_segments_pin_out = {1'b0, gc_ss3};
-                4'd3: main_segments_pin_out = {1'b0, gc_ss4};
-                4'd4: main_segments_pin_out = {1'b0, scr_ss1};
-                4'd5: main_segments_pin_out = {1'b0, scr_ss2};
-                4'd6: main_segments_pin_out = {1'b0, scr_ss3};
-                4'd7: main_segments_pin_out = {1'b0, scr_ss4};
-                4'd8: main_segments_pin_out = {1'b0, sc_ss1};
-                4'd9: main_segments_pin_out = {1'b0, sc_ss2};
-                4'd10: main_segments_pin_out = {1'b0, sc_ss3};
+                4'd0: main_segments_pin_out = gc_ss1;
+                4'd1: main_segments_pin_out = gc_ss2;
+                4'd2: main_segments_pin_out = gc_ss3;
+                4'd3: main_segments_pin_out = gc_ss4;
+                4'd4: main_segments_pin_out = scr_ss1;
+                4'd5: main_segments_pin_out = scr_ss2;
+                4'd6: main_segments_pin_out = scr_ss3;
+                4'd7: main_segments_pin_out = scr_ss4;
+                4'd8: main_segments_pin_out = sc_ss1;
+                4'd9: main_segments_pin_out = sc_ss2;
+                4'd10: main_segments_pin_out = sc_ss3;
                 //4'd11: {main_segments_pin_out} = {1'b0, sc_ss4};
                 default: main_segments_pin_out = 8'b00000110; //E for error
             endcase

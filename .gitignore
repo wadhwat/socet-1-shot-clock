@@ -1,5 +1,10 @@
-socet-1-shot-clock\KiCad_Files\ShotClockPCB\.history\
-socet-1-shot-clock\KiCad_Files\ShotClockPCB\17pinPCB\.history\
+# KiCad generated/local files
+KiCad_Files/ShotClockPCB/**/.history/
+KiCad_Files/ShotClockPCB/**/*-backups/
+KiCad_Files/ShotClockPCB/**/*.kicad_prl
+KiCad_Files/ShotClockPCB/**/fp-info-cache
+KiCad_Files/ShotClockPCB/**/dsn_autorouter/
+
 .vvp
 .vcd
 .vcd.gz
