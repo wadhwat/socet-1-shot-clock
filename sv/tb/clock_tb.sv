@@ -1,10 +1,10 @@
 `timescale 1ns/1ps
 
-module game_clock_tb;
+module clock_tb;
 
     initial begin
-        $dumpfile("game_clock_tb.vcd");  // output file name
-        $dumpvars(0, game_clock_tb);      // dump all signals in the TB
+        $dumpfile("clock_tb.vcd");  // output file name
+        $dumpvars(0, clock_tb);      // dump all signals in the TB
     end
 
     localparam int TIMER_WIDTH = 14;
@@ -31,7 +31,7 @@ module game_clock_tb;
 
     int err_count;
 
-    game_clock #(
+    clock #(
         .PERIOD_MINUTES(PERIOD_MINUTES),
         .SECONDS_PER_MINUTE(SECONDS_PER_MINUTE),
         .TENTHS_PER_SECOND(TENTHS_PER_SECOND),
@@ -115,7 +115,7 @@ module game_clock_tb;
 
         // --- Reset ---
         apply_reset();
-        check_time_outputs("after reset: time", '0);
+        check_time_outputs("after reset: time", TIMER_WIDTH'(FULL_PERIOD_TENTHS));
         check_bit("after reset: expired", expired, 1'b0);
 
         // --- Load and readback (full period) ---
