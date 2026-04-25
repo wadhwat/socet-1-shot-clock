@@ -25,7 +25,6 @@ module top #(
     //SS Outputs
     output logic [3:0] display_select,
     output logic [7:0] display_segments,
-    output logic display_enable
 );
 
     logic n_rst;
