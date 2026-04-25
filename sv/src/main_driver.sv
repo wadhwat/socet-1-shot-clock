@@ -3,6 +3,7 @@ module main_driver (
     input logic [3:0] period_led, //MSB is quadrant 1
     input logic [1:0] pos_led, //away is msb, home is lsb
     input logic [7:0] gc_ss1, gc_ss2, gc_ss3, gc_ss4,
+    input logic gc_colon,
     input logic [7:0] scr_ss1, scr_ss2, scr_ss3, scr_ss4,
     input logic scr_colon,
     input logic [7:0] sc_ss1, sc_ss2, sc_ss3, sc_ss4,
@@ -11,14 +12,14 @@ module main_driver (
 
     output logic [7:0] main_segments_pin_out,
     output logic [3:0] decoder_pin, //controls the decoder to select correct ss
-    output logic gc_colon, //always set to 1
+    output logic gc_colon_out,
     output logic sc_colon_out, scr_colon_out,
     output logic [3:0] period_led_out,
     output logic [1:0] pos_led_out,
     output logic buzzer_out
 );
 
-    assign gc_colon = 1'b1; 
+    assign gc_colon_out = gc_colon; 
     assign sc_colon_out = sc_colon; 
     assign scr_colon_out = scr_colon; 
     assign period_led_out = period_led;

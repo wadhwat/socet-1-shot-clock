@@ -77,7 +77,6 @@ module top #(
         .sc_colon(sc_colon_wire),
         .buzzer_in(buzzer_drive_wire),
 
-        //ERROR: WIDTH MISMATCH, NEED GC DRIVER TO RESOLVE
         .main_segments_pin_out(display_segments),
         .decoder_pin(display_select),
         .gc_colon_out(gc_colon_out),
@@ -92,7 +91,7 @@ module top #(
         .raw_deciseconds(game_clock_time_wire),
         
         .seg3(gc_ss3), .seg2(gc_ss2), .seg1(gc_ss1), .seg0(gc_ss0), //COMPLETE to main driver
-        .colon(gc_colon_wire),
+        .colon(gc_colon_wire)
     );
 
     clock #(
@@ -105,8 +104,8 @@ module top #(
         .nrst(n_rst),
         .tick_10hz(tick_10Hz),
         .enable(game_clock_en_wire),
-        .game_clock_load(game_clock_load_wire),
-        .game_clock_load_value(game_clock_load_value_wire),
+        .clock_load(game_clock_load_wire),
+        .clock_load_value(game_clock_load_value_wire),
         
         .current_time_value(game_clock_time_wire),
         .expired(game_clock_expired_wire)
@@ -117,7 +116,7 @@ module top #(
         .raw_deciseconds(shot_clock_time_wire),
         
         .seg3(sc_ss3), .seg2(sc_ss2), .seg1(sc_ss1), .seg0(sc_ss0), //COMPLETE to main driver
-        .colon(sc_colon_wire),
+        .colon(sc_colon_wire)
     );
 
     clock #(
@@ -130,8 +129,8 @@ module top #(
         .nrst(n_rst),
         .tick_10hz(tick_10Hz),
         .enable(shot_clock_en_wire),
-        .shot_clock_load(shot_clock_load_wire),
-        .shot_clock_load_value(shot_clock_load_value_wire),
+        .clock_load(shot_clock_load_wire),
+        .clock_load_value(shot_clock_load_value_wire),
         
         .current_time_value(shot_clock_time_wire),
         .expired(shot_clock_expired_wire)
