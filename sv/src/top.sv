@@ -36,7 +36,7 @@ module top #(
     logic possession_state_wire;
     logic [7:0] home_score_wire, away_score_wire;
     logic buzzer_drive_wire;
-    logic expired_wire;
+    logic expired_fsm_wire, ;
 
     main_driver m1 (
         .clk(clk),
@@ -62,8 +62,15 @@ module top #(
         .buzzer_out(buzzer_drive)
     );
 
-    //IDK how ts works
-    game_clock #(
+    clock_driver cd1 (
+        .raw_deciseconds(), //COMPLETE from clock module in tenths of seconds
+        
+        .seg3(gc_ss3), .seg2(gc_ss2), .seg1(gc_ss1), .seg0(gc_ss0), //COMPLETE to main driver
+        .colon(), //COMPLETE to main driver
+        .dp() //COMPLETE to main driver
+    );
+    
+    clock #(
         .PERIOD_MINUTES(12),
         .SECONDS_PER_MINUTE(60),
         .TENTHS_PER_SECOND(10),
@@ -73,11 +80,11 @@ module top #(
         .nrst(n_rst),
         .tick_10hz(tick_10Hz),
         .enable(), // COMPLETE from control FSM
-        .game_clock_load(), // COMPLETE from control FSM
-        .game_clock_load_value(), // COMPLETE from control FSM (probably just full time in tenths)
+        .clock_load(), // COMPLETE from control FSM
+        .clock_load_value(), // COMPLETE from control FSM (probably just full time in tenths)
         
         .current_time_value(), // COMPLETE to needed modules
-        .expired(expired_wire), //goes to buzzer driver
+        .expired(expired_fsm_wire), //goes to FSM
         .below_10() // COMPLETE should go to 
     );
 
@@ -87,7 +94,7 @@ module top #(
     ) bd1 (
         .clk(clk),
         .nrst(n_rst),
-        .buzzer_pulse(expired_wire), //wire from game_clock.sv
+        .buzzer_pulse(), //wire from game_clock.sv
         .buzzer_length(BUZZER_LENGTH), //Parameter set at top of top.sv
         .buzzer_out(buzzer_drive_wire)
     );
