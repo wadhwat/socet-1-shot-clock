@@ -6,6 +6,7 @@ MISSING shot clock driver, shot clock
 
 module top #(
     parameter logic [6:0] BUZZER_LENGTH = 7'd20 //2 seconds long
+    parameter integer TIMER_WIDTH = 16
 )(
     input  logic clk,                // 100 MHz onboard oscillator
     input  logic rst_in,           // active-high reset input
@@ -39,8 +40,8 @@ module top #(
     logic btn_start_stop, btn_possession, btn_score_up, btn_score_down, btn_shot_reset;
     logic home_led_wire, away_led_wire;
     logic [3:0] period_led_wire;
-    logic [7:0] gc_ss1, gc_ss2, gc_ss3, gc_ss4;
-    logic [7:0] sc_ss1, sc_ss2, sc_ss3, sc_ss4;
+    logic [7:0] gc_ss0, gc_ss1, gc_ss2, gc_ss3;
+    logic [7:0] sc_ss0, sc_ss1, sc_ss2, sc_ss3;
     logic [7:0] scr_ss1, scr_ss2, scr_ss3, scr_ss4; 
     logic possession_state_wire;
     logic [1:0] period_state_wire;
@@ -52,11 +53,12 @@ module top #(
     logic possession_increment_wire;
     logic shot_clock_en_wire;
     logic shot_clock_load_wire;
-    logic [9:0] shot_clock_load_value_wire;
+    logic [TIMER_WIDTH-1:0] shot_clock_load_value_wire;
+    logic [TIMER_WIDTH-1:0] shot_clock_time_wire;
     logic game_clock_en_wire;
     logic game_clock_load_wire;
-    logic [13:0] game_clock_load_value_wire;
-    logic [13:0] game_clock_time_wire;
+    logic [TIMER_WIDTH-1:0] game_clock_load_value_wire;
+    logic [TIMER_WIDTH-1:0] game_clock_time_wire;
     logic game_clock_below_10_wire;
     logic final_flash_active_wire;
     logic final_flash_show_9999_wire;
@@ -89,7 +91,9 @@ module top #(
         .buzzer_out(buzzer_drive)
     );
 
-    clock_driver gcd (
+    clock_driver gcd #(
+        .TIMER_WIDTH(TIMER_WIDTH)
+    ) (
         .raw_deciseconds(game_clock_time_wire),
         
         .seg3(gc_ss3), .seg2(gc_ss2), .seg1(gc_ss1), .seg0(gc_ss0), //COMPLETE to main driver
@@ -114,7 +118,9 @@ module top #(
     );
 
 
-    clock_driver scd (
+    clock_driver scd #(
+        .TIMER_WIDTH(TIMER_WIDTH)
+    ) (
         .raw_deciseconds(shot_clock_time_wire),
         
         .seg3(sc_ss3), .seg2(sc_ss2), .seg1(sc_ss1), .seg0(sc_ss0), //COMPLETE to main driver
@@ -122,10 +128,10 @@ module top #(
     );
 
     clock #(
-        .PERIOD_MINUTES(15),
+        .PERIOD_MINUTES(0.5), // 30 seconds
         .SECONDS_PER_MINUTE(60),
         .TENTHS_PER_SECOND(10),
-        .TIMER_WIDTH(14)
+        .TIMER_WIDTH(TIMER_WIDTH)
     ) sc1 (
         .clk(clk),
         .nrst(n_rst),
@@ -187,14 +193,14 @@ module top #(
 
     control_fsm #(
         .N_BUTTONS(5),
-        .TIMER_WIDTH(14),
+        .TIMER_WIDTH(TIMER_WIDTH),
         .SHOT_TIMER_WIDTH(10),
         .FULL_PERIOD_MINUTES(15)
     ) cfsm1 (
         .clk(clk),
         .n_rst(n_rst),
         .period_state(period_state_wire),
-        .shot_clock_expired(1'b0),
+        .shot_clock_expired(shot_clock_expired_wire),
         .game_clock_expired(game_clock_expired_wire),
         .tick_10hz(tick_10Hz),
         .conditioned_buttons({btn_shot_reset, btn_score_down, btn_score_up, btn_possession, btn_start_stop}),
