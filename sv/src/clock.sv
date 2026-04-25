@@ -2,7 +2,7 @@
 
 `timescale 1ns/1ps
 
-module game_clock #(
+module clock #(
     parameter integer PERIOD_MINUTES      = 12,
     parameter integer SECONDS_PER_MINUTE  = 60,
     parameter integer TENTHS_PER_SECOND   = 10,
@@ -28,7 +28,7 @@ module game_clock #(
 
     always_ff @(posedge clk or negedge nrst) begin
         if (!nrst) begin
-            time_left_tenths <= '0;
+            time_left_tenths <= TIMER_WIDTH'(FULL_PERIOD_TENTHS);
             expired <= 1'b0;
         end else if (game_clock_load) begin
             time_left_tenths <= game_clock_load_value;
