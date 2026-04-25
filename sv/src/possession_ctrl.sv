@@ -8,7 +8,8 @@ module possession_ctrl (
     input  logic n_rst,                  // Active-low reset
     input  logic possession_toggle_pulse, // Button to switch possession
     output logic possession_state,       // 0 is home team, 1 is away team
-    output logic [1:0] possession_leds   // One-hot: [away, home]
+    output logic home_led,   
+    output logic away_led
 );
 
     always_ff @(posedge clk or negedge n_rst) begin
@@ -21,9 +22,9 @@ module possession_ctrl (
 
     always_comb begin
         case (possession_state)
-            1'b0: possession_leds = 2'b01; // Home team
-            1'b1: possession_leds = 2'b10; // Away team
-            default: possession_leds = 2'b00;
+            1'b0: {away_led, home_led} = 2'b01; // Home team
+            1'b1: {away_led, home_led} = 2'b10; // Away team
+            default: {away_led, home_led} = 2'b00;
         endcase
     end
 

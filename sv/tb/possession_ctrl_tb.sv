@@ -6,7 +6,8 @@ module possession_ctrl_tb;
     logic n_rst;
     logic possession_toggle_pulse;
     logic possession_state;
-    logic [1:0] possession_leds;
+    logic home_led;
+    logic away_led;
 
     int err_count;
 
@@ -15,7 +16,8 @@ module possession_ctrl_tb;
         .n_rst(n_rst),
         .possession_toggle_pulse(possession_toggle_pulse),
         .possession_state(possession_state),
-        .possession_leds(possession_leds)
+        .home_led(home_led),
+        .away_led(away_led)
     );
 
     always #5 clk = ~clk;
@@ -57,37 +59,37 @@ module possession_ctrl_tb;
         n_rst = 1'b0;
         repeat (2) @(posedge clk);
         check_eq("reset state", possession_state, 1'b0);
-        check_leds("reset leds", possession_leds, 2'b01);
+        check_leds("reset leds", {away_led, home_led}, 2'b01);
 
         n_rst = 1'b1;
         @(posedge clk);
         check_eq("state holds after reset release", possession_state, 1'b0);
-        check_leds("leds hold after reset release", possession_leds, 2'b01);
+        check_leds("leds hold after reset release", {away_led, home_led}, 2'b01);
 
         pulse_toggle();
         @(posedge clk);
         #1;
         check_eq("state toggles to away", possession_state, 1'b1);
-        check_leds("leds show away", possession_leds, 2'b10);
+        check_leds("leds show away", {away_led, home_led}, 2'b10);
 
         pulse_toggle();
         @(posedge clk);
         #1;
         check_eq("state toggles back to home", possession_state, 1'b0);
-        check_leds("leds show home", possession_leds, 2'b01);
+        check_leds("leds show home", {away_led, home_led}, 2'b01);
 
         @(negedge clk);
         possession_toggle_pulse = 1'b0;
         @(posedge clk);
         #1;
         check_eq("state holds without pulse", possession_state, 1'b0);
-        check_leds("leds hold without pulse", possession_leds, 2'b01);
+        check_leds("leds hold without pulse", {away_led, home_led}, 2'b01);
 
         n_rst = 1'b0;
         @(posedge clk);
         #1;
         check_eq("async reset returns home", possession_state, 1'b0);
-        check_leds("async reset leds", possession_leds, 2'b01);
+        check_leds("async reset leds", {away_led, home_led}, 2'b01);
 
         if (err_count == 0)
             $display("PASS possession_ctrl_tb");
