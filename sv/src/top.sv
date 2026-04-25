@@ -8,7 +8,7 @@ module top #(
     parameter logic [6:0] BUZZER_LENGTH = 7'd20 //2 seconds long
 )(
     input  logic clk,                // 100 MHz onboard oscillator
-    input  logic n_rst,              // active-low reset
+    input  logic n_rst_in,           // active-low reset input
     // n_rst is equivalent to btn_reset (pb[5])
 
     input  logic btn_start_stop_raw,     // pb[0]
@@ -27,6 +27,10 @@ module top #(
     output logic [7:0] display_segments,
     output logic display_enable
 );
+
+    logic n_rst;
+
+    assign n_rst = ~n_rst_in;
 
     logic tick_10Hz, tick_1kHz, tick_2640Hz;
     logic btn_start_stop, btn_possession, btn_score_up, btn_score_down, btn_shot_reset;
