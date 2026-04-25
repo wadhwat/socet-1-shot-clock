@@ -25,6 +25,10 @@ module top #(
     //SS Outputs
     output logic [3:0] display_select,
     output logic [7:0] display_segments,
+
+    output logic gc_colon_out,
+    output logic sc_colon_out,
+    output logic scr_colon_out
 );
 
     logic n_rst;
@@ -66,32 +70,31 @@ module top #(
         .period_led(period_led_wire),
         .pos_led(pos_led_wire),
         .gc_ss1(gc_ss1), .gc_ss2(gc_ss2), .gc_ss3(gc_ss3), .gc_ss4(gc_ss4), //COMPLETE
+        .gc_colon(gc_colon_wire),
         .scr_ss1(scr_ss1), .scr_ss2(scr_ss2), .scr_ss3(scr_ss3), .scr_ss4(scr_ss4),
-        .scr_colon(1'b0), 
+        .scr_colon('0), 
         .sc_ss1(sc_ss1), .sc_ss2(sc_ss2), .sc_ss3(sc_ss3), .sc_ss4(sc_ss4),
-        .sc_colon(1'b0),
+        .sc_colon(sc_colon_wire),
         .buzzer_in(buzzer_drive_wire),
 
         //ERROR: WIDTH MISMATCH, NEED GC DRIVER TO RESOLVE
         .main_segments_pin_out(display_segments),
         .decoder_pin(display_select),
-        //.gc_colon(), //always set 
-        .sc_colon_out(), 
-        //.scr_colon_out(),   //do we have a PCB trace for this?
+        .gc_colon_out(gc_colon_out),
+        .sc_colon_out(sc_colon_out), 
+        .scr_colon_out(scr_colon_out),
         .period_led_out(period_leds), 
         .pos_led_out(possession_leds),
         .buzzer_out(buzzer_drive)
     );
 
-    clock_driver cd1 (
-        .raw_deciseconds(), //COMPLETE from clock module in tenths of seconds
+    clock_driver gcd (
+        .raw_deciseconds(game_clock_time_wire),
         
         .seg3(gc_ss3), .seg2(gc_ss2), .seg1(gc_ss1), .seg0(gc_ss0), //COMPLETE to main driver
-        .colon(), //COMPLETE to main driver
-        .dp() //COMPLETE to main driver
+        .colon(gc_colon_wire),
     );
 
-    //IDK how ts works
     clock #(
         .PERIOD_MINUTES(15),
         .SECONDS_PER_MINUTE(60),
@@ -105,9 +108,33 @@ module top #(
         .game_clock_load(game_clock_load_wire),
         .game_clock_load_value(game_clock_load_value_wire),
         
-        .current_time_value(game_clock_time_wire), // TODO: once we have the GC driver, connect this to the time input
-        .expired(game_clock_expired_wire),
-        .below_10(game_clock_below_10_wire)
+        .current_time_value(game_clock_time_wire),
+        .expired(game_clock_expired_wire)
+    );
+
+
+    clock_driver scd (
+        .raw_deciseconds(shot_clock_time_wire),
+        
+        .seg3(sc_ss3), .seg2(sc_ss2), .seg1(sc_ss1), .seg0(sc_ss0), //COMPLETE to main driver
+        .colon(sc_colon_wire),
+    );
+
+    clock #(
+        .PERIOD_MINUTES(15),
+        .SECONDS_PER_MINUTE(60),
+        .TENTHS_PER_SECOND(10),
+        .TIMER_WIDTH(14)
+    ) sc1 (
+        .clk(clk),
+        .nrst(n_rst),
+        .tick_10hz(tick_10Hz),
+        .enable(shot_clock_en_wire),
+        .shot_clock_load(shot_clock_load_wire),
+        .shot_clock_load_value(shot_clock_load_value_wire),
+        
+        .current_time_value(shot_clock_time_wire),
+        .expired(shot_clock_expired_wire)
     );
 
     buzzer_driver #(
