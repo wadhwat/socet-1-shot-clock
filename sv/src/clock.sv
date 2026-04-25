@@ -1,7 +1,7 @@
 // Game period countdown in tenths of a second; decrements on tick_10hz when enabled.
 
 module clock #(
-    parameter integer PERIOD_MINUTES      = 12,
+    parameter real    PERIOD_MINUTES      = 12,
     parameter integer SECONDS_PER_MINUTE  = 60,
     parameter integer TENTHS_PER_SECOND   = 10,
     parameter integer TIMER_WIDTH         = 14
