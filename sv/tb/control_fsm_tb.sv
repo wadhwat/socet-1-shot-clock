@@ -16,8 +16,6 @@ module control_fsm_tb;
     localparam int SHOT_CLOCK_SECONDS = 30;
     localparam int INTERMISSION_SECONDS = 75;
     localparam int HALFTIME_MINUTES = 15;
-    localparam int FINAL_FLASH_TICKS = 6;
-    localparam int FINAL_FLASH_TOGGLE_TICKS = 2;
 
     localparam int BTN_START_STOP = 0;
     localparam int BTN_POSSESSION = 1;
@@ -34,7 +32,6 @@ module control_fsm_tb;
         TIMER_WIDTH'(INTERMISSION_SECONDS * TENTHS_PER_SECOND);
     localparam logic [TIMER_WIDTH-1:0] HALFTIME_TENTHS =
         TIMER_WIDTH'(HALFTIME_MINUTES * SECONDS_PER_MINUTE * TENTHS_PER_SECOND);
-    localparam logic [TIMER_WIDTH-1:0] FINAL_FLASH_9999_VALUE = {TIMER_WIDTH{1'b1}};
     localparam logic [SHOT_TIMER_WIDTH-1:0] SHOT_CLOCK_TENTHS =
         SHOT_TIMER_WIDTH'(SHOT_CLOCK_SECONDS * TENTHS_PER_SECOND);
 
@@ -55,8 +52,6 @@ module control_fsm_tb;
     logic game_clock_en;
     logic game_clock_load;
     logic [TIMER_WIDTH-1:0] game_clock_load_value;
-    logic final_flash_active;
-    logic final_flash_show_9999;
 
     int err_count;
 
@@ -69,9 +64,7 @@ module control_fsm_tb;
         .FULL_PERIOD_MINUTES(FULL_PERIOD_MINUTES),
         .SHOT_CLOCK_SECONDS(SHOT_CLOCK_SECONDS),
         .INTERMISSION_SECONDS(INTERMISSION_SECONDS),
-        .HALFTIME_MINUTES(HALFTIME_MINUTES),
-        .FINAL_FLASH_TICKS(FINAL_FLASH_TICKS),
-        .FINAL_FLASH_TOGGLE_TICKS(FINAL_FLASH_TOGGLE_TICKS)
+        .HALFTIME_MINUTES(HALFTIME_MINUTES)
     ) dut (
         .clk(clk),
         .n_rst(n_rst),
@@ -88,9 +81,7 @@ module control_fsm_tb;
         .shot_clock_load_value(shot_clock_load_value),
         .game_clock_en(game_clock_en),
         .game_clock_load(game_clock_load),
-        .game_clock_load_value(game_clock_load_value),
-        .final_flash_active(final_flash_active),
-        .final_flash_show_9999(final_flash_show_9999)
+        .game_clock_load_value(game_clock_load_value)
     );
 
     always #5 clk = ~clk;
@@ -157,6 +148,7 @@ module control_fsm_tb;
         input string what,
         input logic [1:0] period,
         input logic exp_period_increment,
+        input logic exp_game_clock_load,
         input logic [TIMER_WIDTH-1:0] exp_load_value
     );
         @(negedge clk);
@@ -164,7 +156,7 @@ module control_fsm_tb;
         game_clock_expired = 1'b1;
         #1;
         check_bit({what, " buzzer"}, buzzer_trigger, 1'b1);
-        check_bit({what, " game load"}, game_clock_load, 1'b1);
+        check_bit({what, " game load"}, game_clock_load, exp_game_clock_load);
         check_bit({what, " period increment"}, period_increment, exp_period_increment);
         check_time({what, " load value"}, game_clock_load_value, exp_load_value);
         @(negedge clk);
@@ -217,39 +209,25 @@ module control_fsm_tb;
 
         start_clock();
 
-        expire_game_clock("Q1 expires", Q1, 1'b1, INTERMISSION_TENTHS);
+        expire_game_clock("Q1 expires", Q1, 1'b1, 1'b1, INTERMISSION_TENTHS);
         check_bit("intermission keeps game clock enabled", game_clock_en, 1'b1);
         check_bit("intermission disables shot clock", shot_clock_en, 1'b0);
 
-        expire_game_clock("intermission expires", Q2, 1'b0, FULL_PERIOD_TENTHS);
+        expire_game_clock("intermission expires", Q2, 1'b0, 1'b1, FULL_PERIOD_TENTHS);
         check_bit("game resumes after intermission", shot_clock_en, 1'b1);
 
-        expire_game_clock("Q2 expires", Q2, 1'b1, HALFTIME_TENTHS);
+        expire_game_clock("Q2 expires", Q2, 1'b1, 1'b1, HALFTIME_TENTHS);
         check_bit("halftime disables shot clock", shot_clock_en, 1'b0);
 
-        expire_game_clock("halftime expires", Q3, 1'b0, FULL_PERIOD_TENTHS);
+        expire_game_clock("halftime expires", Q3, 1'b0, 1'b1, FULL_PERIOD_TENTHS);
         check_bit("game resumes after halftime", shot_clock_en, 1'b1);
 
-        expire_game_clock("Q3 expires", Q3, 1'b1, INTERMISSION_TENTHS);
-        expire_game_clock("intermission before Q4 expires", Q4, 1'b0, FULL_PERIOD_TENTHS);
+        expire_game_clock("Q3 expires", Q3, 1'b1, 1'b1, INTERMISSION_TENTHS);
+        expire_game_clock("intermission before Q4 expires", Q4, 1'b0, 1'b1, FULL_PERIOD_TENTHS);
 
-        expire_game_clock("Q4 expires", Q4, 1'b0, FINAL_FLASH_9999_VALUE);
-        check_bit("final flash active", final_flash_active, 1'b1);
-        check_bit("final flash starts at 9999", final_flash_show_9999, 1'b1);
-        check_bit("final flash disables game clock", game_clock_en, 1'b0);
-        check_bit("final flash disables shot clock", shot_clock_en, 1'b0);
-
-        pulse_tick_10hz();
-        check_bit("final flash holds first phase after one tick", final_flash_show_9999, 1'b1);
-        pulse_tick_10hz();
-        check_bit("final flash toggles after two ticks", final_flash_show_9999, 1'b0);
-
-        repeat (FINAL_FLASH_TICKS - 2) pulse_tick_10hz();
-        check_bit("final flash completes", final_flash_active, 1'b0);
-
-        pulse_button(BTN_START_STOP);
-        @(posedge clk);
-        check_bit("start ignored after final flash", game_clock_en, 1'b0);
+        expire_game_clock("Q4 expires", Q4, 1'b0, 1'b0, '0);
+        check_bit("final state stops game clock", game_clock_en, 1'b0);
+        check_bit("final state stops shot clock", shot_clock_en, 1'b0);
 
         if (err_count == 0)
             $display("PASS control_fsm_tb");
