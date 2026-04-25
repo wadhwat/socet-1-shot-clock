@@ -3,10 +3,14 @@ module score_tracker(
     input logic nrst,
     input logic plus_one_possession_pulse,
     input logic minus_one_possession_pulse,
-    input logic possession_state, // 1 is the home team and 0 is the away team
+    input logic possession_state, // 1 is the away team and 0 is the home team
     output logic [7:0] home_score,
     output logic [7:0] away_score
 );
+
+    // Maximum score shown on the display; keep internal state saturated to
+    // avoid divergence between internal counters and the display clamping.
+    localparam logic [7:0] MAX_SCORE = 8'd99;
 
     always_ff @(posedge clk or negedge nrst) begin
         if (!nrst) begin
@@ -14,19 +18,26 @@ module score_tracker(
             away_score <= 8'd0;
         end
         else if (plus_one_possession_pulse) begin
-            if (possession_state)
-                home_score <= home_score + 8'd1;
-            else
-                away_score <= away_score + 8'd1;
+            if (possession_state) begin
+                if (away_score < MAX_SCORE)
+                    away_score <= away_score + 8'd1;
+                else
+                    away_score <= MAX_SCORE; // saturate at MAX_SCORE
+            end else begin
+                if (home_score < MAX_SCORE)
+                    home_score <= home_score + 8'd1;
+                else
+                    home_score <= MAX_SCORE; // saturate at MAX_SCORE
+            end
         end
         else if (minus_one_possession_pulse) begin
             if (possession_state) begin
-                if (home_score != 8'd0)
-                    home_score <= home_score - 8'd1;
-            end
-            else begin
                 if (away_score != 8'd0)
                     away_score <= away_score - 8'd1;
+            end
+            else begin
+                if (home_score != 8'd0)
+                    home_score <= home_score - 8'd1;
             end
         end
     end

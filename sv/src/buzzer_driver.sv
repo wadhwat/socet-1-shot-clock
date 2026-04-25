@@ -7,7 +7,7 @@ module buzzer_driver #(
     parameter integer CLK_FREQ  = 100_000_000
 ) (
     input  wire              clk,
-    input  wire              nrst,
+    input  wire              n_rst,
     input  wire              buzzer_pulse,
     input  wire [6:0]        buzzer_length,
     output logic             buzzer_out
@@ -23,8 +23,8 @@ module buzzer_driver #(
     logic [DUR_WIDTH-1:0] dur_cnt;
     logic [HALF_CNT_WIDTH-1:0] half_cnt;
 
-    always_ff @(posedge clk) begin
-        if (!nrst) begin
+    always_ff @(posedge clk, negedge n_rst) begin
+        if (!n_rst) begin
             active     <= 1'b0;
             buzzer_out <= 1'b0;
             dur_cnt    <= '0;
