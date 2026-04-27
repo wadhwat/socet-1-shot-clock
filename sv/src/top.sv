@@ -27,6 +27,8 @@ module top #(
     output logic [3:0] display_select,
     output logic [7:0] display_segments,
 
+    output logic colon_out, //Shared colon net on PCB
+
     output logic gc_colon_out,
     output logic sc_colon_out,
     output logic scr_colon_out
@@ -35,6 +37,8 @@ module top #(
     logic n_rst;
 
     assign n_rst = ~rst_in;
+
+    assign colon_out = 1'b1;
 
     logic tick_10Hz, tick_1kHz, tick_2640Hz;
     logic btn_start_stop, btn_possession, btn_score_up, btn_score_down, btn_shot_reset;
@@ -87,9 +91,9 @@ module top #(
         .buzzer_out(buzzer_drive)
     );
 
-    clock_driver gcd #(
+    clock_driver #(
         .TIMER_WIDTH(TIMER_WIDTH)
-    ) (
+    ) gcd (
         .raw_deciseconds(game_clock_time_wire),
         
         .seg3(gc_ss1), .seg2(gc_ss2), .seg1(gc_ss3), .seg0(gc_ss4), //COMPLETE to main driver
@@ -114,9 +118,9 @@ module top #(
     );
 
 
-    clock_driver scd #(
+    clock_driver #(
         .TIMER_WIDTH(TIMER_WIDTH)
-    ) (
+    ) scd (
         .raw_deciseconds(shot_clock_time_wire),
         
         .seg3(sc_ss1), .seg2(sc_ss2), .seg1(sc_ss3), .seg0(sc_ss4), //COMPLETE to main driver
