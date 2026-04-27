@@ -27,6 +27,8 @@ module top #(
     output logic [3:0] display_select,
     output logic [7:0] display_segments,
 
+    output logic colon_out, //Shared colon net on PCB
+
     output logic gc_colon_out,
     output logic sc_colon_out,
     output logic scr_colon_out
@@ -35,6 +37,8 @@ module top #(
     logic n_rst;
 
     assign n_rst = ~rst_in;
+
+    assign colon_out = 1'b1;
 
     logic tick_10Hz, tick_1kHz, tick_2640Hz;
     logic btn_start_stop, btn_possession, btn_score_up, btn_score_down, btn_shot_reset;
