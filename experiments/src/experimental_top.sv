@@ -1,0 +1,296 @@
+/*
+Experimental breadboard top for one physical 4-digit display.
+
+The display is wired in the shot-clock digit-select position, so this wrapper
+always drives select values 8..11 while cycling the displayed content between
+shot clock, game clock, and score.
+*/
+
+module experimental_top #(
+    parameter logic [6:0] BUZZER_LENGTH = 7'd20,
+    parameter integer TIMER_WIDTH = 16
+)(
+    input  logic clk,
+    input  logic sw_n_rst,
+    input  logic sw_possession,
+
+    input  logic btn_start_stop_raw,
+    input  logic btn_score_up_raw,
+    input  logic btn_shot_reset_raw,
+    input  logic btn_display_mode_raw,
+
+    output logic [3:0] period_leds,
+    output logic [1:0] possession_leds,
+    output logic buzzer_drive,
+
+    output logic [3:0] display_select,
+    output logic [7:0] display_segments,
+    output logic colon_out
+);
+
+    localparam int N_BUTTONS = 4;
+    localparam int BTN_START_STOP = 0;
+    localparam int BTN_SCORE_UP = 1;
+    localparam int BTN_SHOT_RESET = 2;
+    localparam int BTN_DISPLAY_MODE = 3;
+
+    typedef enum logic [1:0] {
+        DISPLAY_SHOT  = 2'd0,
+        DISPLAY_GAME  = 2'd1,
+        DISPLAY_SCORE = 2'd2
+    } display_mode_t;
+
+    logic n_rst;
+    assign n_rst = sw_n_rst;
+
+    logic tick_10Hz, tick_1kHz, tick_2640Hz;
+    logic [N_BUTTONS-1:0] conditioned_buttons;
+
+    logic [7:0] gc_ss1, gc_ss2, gc_ss3, gc_ss4;
+    logic [7:0] sc_ss1, sc_ss2, sc_ss3, sc_ss4;
+    logic [7:0] scr_ss1, scr_ss2, scr_ss3, scr_ss4;
+    logic gc_colon_wire, sc_colon_wire;
+
+    logic [1:0] period_state_wire;
+    logic [7:0] home_score_wire, away_score_wire;
+    logic game_clock_expired_wire;
+    logic shot_clock_expired_wire;
+    logic buzzer_trigger_wire;
+    logic buzzer_drive_wire;
+    logic period_increment_wire;
+    logic unused_possession_increment_wire;
+    logic shot_clock_en_wire;
+    logic shot_clock_load_wire;
+    logic [TIMER_WIDTH-1:0] shot_clock_load_value_wire;
+    logic [TIMER_WIDTH-1:0] shot_clock_time_wire;
+    logic game_clock_en_wire;
+    logic game_clock_load_wire;
+    logic [TIMER_WIDTH-1:0] game_clock_load_value_wire;
+    logic [TIMER_WIDTH-1:0] game_clock_time_wire;
+
+    logic [3:0] active_digit_idx;
+    display_mode_t display_mode;
+
+    assign possession_leds = {sw_possession, ~sw_possession};
+    assign buzzer_drive = buzzer_drive_wire;
+
+    tick_generator #(
+        .CLK_FREQ_HZ(100_000_000),
+        .TICK_FREQ_HZ(10),
+        .TICK_2640_HZ(2640),
+        .CONDITIONED(1_000)
+    ) tg (
+        .clk(clk),
+        .rst_n(n_rst),
+        .tick_10Hz(tick_10Hz),
+        .tick_1kHz(tick_1kHz),
+        .tick_2640Hz(tick_2640Hz)
+    );
+
+    button_conditioner #(
+        .N_BUTTONS(N_BUTTONS),
+        .STREAK_REQUIRED(6)
+    ) bc (
+        .clk(clk),
+        .n_rst(n_rst),
+        .tick_1kHz(tick_1kHz),
+        .raw_buttons({
+            btn_display_mode_raw,
+            btn_shot_reset_raw,
+            btn_score_up_raw,
+            btn_start_stop_raw
+        }),
+        .conditioned_buttons(conditioned_buttons)
+    );
+
+    always_ff @(posedge clk or negedge n_rst) begin
+        if (!n_rst) begin
+            display_mode <= DISPLAY_SHOT;
+        end else if (conditioned_buttons[BTN_DISPLAY_MODE]) begin
+            unique case (display_mode)
+                DISPLAY_SHOT:  display_mode <= DISPLAY_GAME;
+                DISPLAY_GAME:  display_mode <= DISPLAY_SCORE;
+                default:       display_mode <= DISPLAY_SHOT;
+            endcase
+        end
+    end
+
+    always_ff @(posedge clk or negedge n_rst) begin
+        if (!n_rst) begin
+            active_digit_idx <= 4'd0;
+        end else if (tick_2640Hz) begin
+            if (active_digit_idx == 4'd3)
+                active_digit_idx <= 4'd0;
+            else
+                active_digit_idx <= active_digit_idx + 1'b1;
+        end
+    end
+
+    assign display_select = 4'd8 + active_digit_idx;
+
+    always_comb begin
+        display_segments = 8'b11111111;
+
+        unique case (display_mode)
+            DISPLAY_SHOT: begin
+                unique case (active_digit_idx)
+                    4'd0: display_segments = sc_ss1;
+                    4'd1: display_segments = sc_ss2;
+                    4'd2: display_segments = sc_ss3;
+                    4'd3: display_segments = sc_ss4;
+                    default: display_segments = 8'b11111111;
+                endcase
+            end
+            DISPLAY_GAME: begin
+                unique case (active_digit_idx)
+                    4'd0: display_segments = gc_ss1;
+                    4'd1: display_segments = gc_ss2;
+                    4'd2: display_segments = gc_ss3;
+                    4'd3: display_segments = gc_ss4;
+                    default: display_segments = 8'b11111111;
+                endcase
+            end
+            DISPLAY_SCORE: begin
+                unique case (active_digit_idx)
+                    4'd0: display_segments = scr_ss1;
+                    4'd1: display_segments = scr_ss2;
+                    4'd2: display_segments = scr_ss3;
+                    4'd3: display_segments = scr_ss4;
+                    default: display_segments = 8'b11111111;
+                endcase
+            end
+            default: display_segments = 8'b11111111;
+        endcase
+    end
+
+    always_comb begin
+        unique case (display_mode)
+            DISPLAY_SHOT:  colon_out = sc_colon_wire;
+            DISPLAY_GAME:  colon_out = gc_colon_wire;
+            default:       colon_out = 1'b0;
+        endcase
+    end
+
+    clock_driver #(
+        .TIMER_WIDTH(TIMER_WIDTH)
+    ) gcd (
+        .raw_deciseconds(game_clock_time_wire),
+        .seg3(gc_ss1),
+        .seg2(gc_ss2),
+        .seg1(gc_ss3),
+        .seg0(gc_ss4),
+        .colon(gc_colon_wire)
+    );
+
+    clock #(
+        .PERIOD_MINUTES(15),
+        .SECONDS_PER_MINUTE(60),
+        .TENTHS_PER_SECOND(10),
+        .TIMER_WIDTH(TIMER_WIDTH)
+    ) gc (
+        .clk(clk),
+        .nrst(n_rst),
+        .tick_10hz(tick_10Hz),
+        .enable(game_clock_en_wire),
+        .clock_load(game_clock_load_wire),
+        .clock_load_value(game_clock_load_value_wire),
+        .current_time_value(game_clock_time_wire),
+        .expired(game_clock_expired_wire)
+    );
+
+    clock_driver #(
+        .TIMER_WIDTH(TIMER_WIDTH)
+    ) scd (
+        .raw_deciseconds(shot_clock_time_wire),
+        .seg3(sc_ss1),
+        .seg2(sc_ss2),
+        .seg1(sc_ss3),
+        .seg0(sc_ss4),
+        .colon(sc_colon_wire)
+    );
+
+    clock #(
+        .PERIOD_MINUTES(0.5),
+        .SECONDS_PER_MINUTE(60),
+        .TENTHS_PER_SECOND(10),
+        .TIMER_WIDTH(TIMER_WIDTH)
+    ) sc (
+        .clk(clk),
+        .nrst(n_rst),
+        .tick_10hz(tick_10Hz),
+        .enable(shot_clock_en_wire),
+        .clock_load(shot_clock_load_wire),
+        .clock_load_value(shot_clock_load_value_wire),
+        .current_time_value(shot_clock_time_wire),
+        .expired(shot_clock_expired_wire)
+    );
+
+    buzzer_driver #(
+        .FREQUENCY(2000),
+        .CLK_FREQ(100_000_000)
+    ) bd (
+        .clk(clk),
+        .n_rst(n_rst),
+        .buzzer_pulse(buzzer_trigger_wire),
+        .buzzer_length(BUZZER_LENGTH),
+        .buzzer_out(buzzer_drive_wire)
+    );
+
+    score_driver sd (
+        .home_score(home_score_wire),
+        .away_score(away_score_wire),
+        .scr_ss1(scr_ss1),
+        .scr_ss2(scr_ss2),
+        .scr_ss3(scr_ss3),
+        .scr_ss4(scr_ss4)
+    );
+
+    score_tracker st (
+        .clk(clk),
+        .nrst(n_rst),
+        .plus_one_possession_pulse(conditioned_buttons[BTN_SCORE_UP]),
+        .minus_one_possession_pulse(1'b0),
+        .possession_state(sw_possession),
+        .home_score(home_score_wire),
+        .away_score(away_score_wire)
+    );
+
+    period_ctrl pc (
+        .clk(clk),
+        .n_rst(n_rst),
+        .increment(period_increment_wire),
+        .period_state(period_state_wire),
+        .period_leds(period_leds)
+    );
+
+    control_fsm #(
+        .N_BUTTONS(5),
+        .TIMER_WIDTH(TIMER_WIDTH),
+        .SHOT_TIMER_WIDTH(TIMER_WIDTH),
+        .FULL_PERIOD_MINUTES(15)
+    ) cfsm (
+        .clk(clk),
+        .n_rst(n_rst),
+        .period_state(period_state_wire),
+        .shot_clock_expired(shot_clock_expired_wire),
+        .game_clock_expired(game_clock_expired_wire),
+        .tick_10hz(tick_10Hz),
+        .conditioned_buttons({
+            conditioned_buttons[BTN_SHOT_RESET],
+            1'b0,
+            1'b0,
+            1'b0,
+            conditioned_buttons[BTN_START_STOP]
+        }),
+        .buzzer_trigger(buzzer_trigger_wire),
+        .period_increment(period_increment_wire),
+        .possession_increment(unused_possession_increment_wire),
+        .shot_clock_en(shot_clock_en_wire),
+        .shot_clock_load(shot_clock_load_wire),
+        .shot_clock_load_value(shot_clock_load_value_wire),
+        .game_clock_en(game_clock_en_wire),
+        .game_clock_load(game_clock_load_wire),
+        .game_clock_load_value(game_clock_load_value_wire)
+    );
+
+endmodule
