@@ -27,13 +27,13 @@ module main_driver (
     assign buzzer_out = buzzer_in;
     //MIGHT!! need to add assign to XOR the ss before they leave to make them work with Anode.
 
-    //DECODER LOOP: 0 -> 10
+    //DECODER LOOP: 0 -> 11
     always_ff @(posedge clk or negedge n_rst) begin
         if (!n_rst) begin
             decoder_pin <= 4'd0;
         end else begin
             if (tick_2640Hz) begin
-                if (decoder_pin == 4'd10)
+                if (decoder_pin == 4'd11)
                     decoder_pin <= 4'd0;
                 else
                     decoder_pin <= decoder_pin + 1'b1;
@@ -42,23 +42,24 @@ module main_driver (
     end
 
     //OUTPUT LOGIC
+    // Physical digit groups: DIG_1..4 = shot, DIG_5..8 = score, DIG_9..12 = game.
     always_comb begin
         if (!n_rst)
             main_segments_pin_out = 8'b11111111;
         else begin
             case (decoder_pin)
-                4'd0: main_segments_pin_out = gc_ss1;
-                4'd1: main_segments_pin_out = gc_ss2;
-                4'd2: main_segments_pin_out = gc_ss3;
-                4'd3: main_segments_pin_out = gc_ss4;
+                4'd0: main_segments_pin_out = 8'b11111111;
+                4'd1: main_segments_pin_out = sc_ss2;
+                4'd2: main_segments_pin_out = sc_ss3;
+                4'd3: main_segments_pin_out = sc_ss4;
                 4'd4: main_segments_pin_out = scr_ss1;
                 4'd5: main_segments_pin_out = scr_ss2;
                 4'd6: main_segments_pin_out = scr_ss3;
                 4'd7: main_segments_pin_out = scr_ss4;
-                //4'd8: main_segments_pin_out = sc_ss1;
-                4'd9: main_segments_pin_out = sc_ss2;
-                4'd10: main_segments_pin_out = sc_ss3;
-                4'd11: {main_segments_pin_out} = {1'b0, sc_ss4};
+                4'd8: main_segments_pin_out = gc_ss1;
+                4'd9: main_segments_pin_out = gc_ss2;
+                4'd10: main_segments_pin_out = gc_ss3;
+                4'd11: main_segments_pin_out = gc_ss4;
                 default: main_segments_pin_out = 8'b00000110; //E for error
             endcase
         end
