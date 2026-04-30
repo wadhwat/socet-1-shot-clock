@@ -45,12 +45,12 @@
 ##   Buzzer       IO28        R11       buzzer_drive
 ##   LED_POS_HOME IO26        U11       possession_leds[0]
 ##   LED_POS_AWAY IO27        T11       possession_leds[1]
-##   BTN_1        A0          G13       btn_start_stop_raw
-##   BTN_2        A1          B16       btn_possession_raw
-##   BTN_3        A2          A16       btn_score_up_raw
-##   BTN_4        A3          C13       btn_score_down_raw
-##   BTN_5        A4          C14       btn_shot_reset_raw
-##   BTN_6        A6          B14       rst_in
+##   SW1          sw[1]       H18       btn_start_stop_raw
+##   BTN0         btn[0]      G15       btn_possession_raw
+##   BTN1         btn[1]      K16       btn_score_up_raw
+##   BTN2         btn[2]      J16       btn_score_down_raw
+##   BTN3         btn[3]      H13       btn_shot_reset_raw
+##   SW0          sw[0]       H14       rst_in
 ##   LED_P1       A7          A14       period_leds[0]
 ##   LED_P2       A8          D16       period_leds[1]
 ##   LED_P3       A9          D17       period_leds[2]
@@ -93,16 +93,22 @@ set_property -dict { PACKAGE_PIN D17 IOSTANDARD LVCMOS33 } [get_ports { period_l
 set_property -dict { PACKAGE_PIN D14 IOSTANDARD LVCMOS33 } [get_ports { period_leds[3] }];     # LED_P4       -> A10  / ck_a10
 
 ## ---------------------------------------------------------
-## Confirmed buttons
+## Confirmed controls
 ## HDL comments: pb[0]=start/stop, pb[1]=possession, pb[2]=score up,
 ##               pb[3]=score down, pb[4]=shot reset, pb[5]=reset
+##
+## Temporary hardware-debug remap:
+##   - rst_in uses Arty SW0 (H14). SW0 high = reset asserted.
+##   - btn_start_stop_raw uses Arty SW1 (H18). Toggle SW1 high to create
+##     the button-conditioner pulse, then toggle it low before the next pulse.
+##   - remaining button inputs use the four Arty onboard pushbuttons.
 ## ---------------------------------------------------------
-set_property -dict { PACKAGE_PIN G13 IOSTANDARD LVCMOS33 } [get_ports { btn_start_stop_raw }]; # BTN_1 -> A0 / ck_a0
-set_property -dict { PACKAGE_PIN B16 IOSTANDARD LVCMOS33 } [get_ports { btn_possession_raw }]; # BTN_2 -> A1 / ck_a1
-set_property -dict { PACKAGE_PIN A16 IOSTANDARD LVCMOS33 } [get_ports { btn_score_up_raw }];   # BTN_3 -> A2 / ck_a2
-set_property -dict { PACKAGE_PIN C13 IOSTANDARD LVCMOS33 } [get_ports { btn_score_down_raw }]; # BTN_4 -> A3 / ck_a3
-set_property -dict { PACKAGE_PIN C14 IOSTANDARD LVCMOS33 } [get_ports { btn_shot_reset_raw }]; # BTN_5 -> A4 / ck_a4
-set_property -dict { PACKAGE_PIN B14 IOSTANDARD LVCMOS33 } [get_ports { rst_in }];             # BTN_6 -> A6 / ck_a6
+set_property -dict { PACKAGE_PIN H18 IOSTANDARD LVCMOS33 } [get_ports { btn_start_stop_raw }]; # Arty SW1
+set_property -dict { PACKAGE_PIN G15 IOSTANDARD LVCMOS33 } [get_ports { btn_possession_raw }]; # Arty BTN0
+set_property -dict { PACKAGE_PIN K16 IOSTANDARD LVCMOS33 } [get_ports { btn_score_up_raw }];   # Arty BTN1
+set_property -dict { PACKAGE_PIN J16 IOSTANDARD LVCMOS33 } [get_ports { btn_score_down_raw }]; # Arty BTN2
+set_property -dict { PACKAGE_PIN H13 IOSTANDARD LVCMOS33 } [get_ports { btn_shot_reset_raw }]; # Arty BTN3
+set_property -dict { PACKAGE_PIN H14 IOSTANDARD LVCMOS33 } [get_ports { rst_in }];             # Arty SW0
 
 ## ---------------------------------------------------------
 ## Confirmed display select, buzzer, and colon nets
