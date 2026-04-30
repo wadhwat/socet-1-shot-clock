@@ -203,7 +203,7 @@ module top_tb;
         check_time("reset home score", TIMER_WIDTH'(dut.home_score_wire), '0);
         check_time("reset away score", TIMER_WIDTH'(dut.away_score_wire), '0);
 
-        repeat (10) begin : scan_check
+        repeat (11) begin : scan_check
             logic [3:0] exp_select;
             exp_select = display_select + 4'd1;
             pulse_forced_2640hz();
